@@ -92,6 +92,12 @@ Placeholder IDL until Session 6. PDA helpers (seeds must match the program):
 - `findCircuitPDA(circuitId)` → `["circuit", u32 LE]`
 - `findProofAccountPDA(authority, nonce)` → `["proof", authority, u64 LE]`
 
+> **Nonce semantics:** `nonce` is a **client-generated cryptographically random
+> `u64`** (`crypto.getRandomValues`). The program's `verify_proof` uses an `init`
+> (not `init_if_needed`) constraint on the ProofAccount, so a reused nonce fails —
+> giving per-proof uniqueness with no extra RPC fetch and no predictable/griefable
+> timestamp. `UserAccount.proof_count` is a stats counter only, never a seed.
+
 ---
 
 ## Endpoints/feeds the dApp will need next (backend to implement)

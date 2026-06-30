@@ -1,0 +1,1299 @@
+{
+  "address": "Ei5ZkTC2M631gSpBoz3wz8szq7rikrUgRbzfwQ353w8Q",
+  "metadata": {
+    "name": "zkhelios",
+    "version": "0.1.0",
+    "spec": "0.1.0",
+    "description": "zkHelios — on-chain Groth16 verifier for zero-knowledge proofs on Solana"
+  },
+  "instructions": [
+    {
+      "name": "accept_admin_transfer",
+      "docs": [
+        "Two-step admin transfer: proposed admin accepts."
+      ],
+      "discriminator": [
+        89,
+        211,
+        96,
+        212,
+        233,
+        0,
+        251,
+        7
+      ],
+      "accounts": [
+        {
+          "name": "new_admin",
+          "signer": true
+        },
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  118,
+                  101,
+                  114,
+                  105,
+                  102,
+                  105,
+                  101,
+                  114,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "close_proof",
+      "docs": [
+        "Close one of your own proof accounts and reclaim rent."
+      ],
+      "discriminator": [
+        64,
+        76,
+        168,
+        8,
+        126,
+        109,
+        164,
+        179
+      ],
+      "accounts": [
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true,
+          "relations": [
+            "proof_account"
+          ]
+        },
+        {
+          "name": "proof_account",
+          "writable": true
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "create_user_account",
+      "docs": [
+        "Initialize the caller's UserAccount (idempotent)."
+      ],
+      "discriminator": [
+        146,
+        68,
+        100,
+        69,
+        63,
+        46,
+        182,
+        199
+      ],
+      "accounts": [
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "user_account",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  117,
+                  115,
+                  101,
+                  114
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "authority"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "initialize",
+      "docs": [
+        "Create the singleton VerifierConfig (once)."
+      ],
+      "discriminator": [
+        175,
+        175,
+        109,
+        31,
+        13,
+        152,
+        155,
+        237
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  118,
+                  101,
+                  114,
+                  105,
+                  102,
+                  105,
+                  101,
+                  114,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "admin",
+          "type": "pubkey"
+        },
+        {
+          "name": "treasury",
+          "type": "pubkey"
+        },
+        {
+          "name": "proof_fee_lamports",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "propose_admin_transfer",
+      "docs": [
+        "Two-step admin transfer: current admin proposes."
+      ],
+      "discriminator": [
+        218,
+        178,
+        115,
+        190,
+        80,
+        107,
+        95,
+        158
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "signer": true,
+          "relations": [
+            "config"
+          ]
+        },
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  118,
+                  101,
+                  114,
+                  105,
+                  102,
+                  105,
+                  101,
+                  114,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "args": [
+        {
+          "name": "new_admin",
+          "type": "pubkey"
+        }
+      ]
+    },
+    {
+      "name": "register_circuit",
+      "docs": [
+        "Register a circuit + its verifying key (admin only)."
+      ],
+      "discriminator": [
+        208,
+        247,
+        241,
+        136,
+        81,
+        166,
+        206,
+        199
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "writable": true,
+          "signer": true,
+          "relations": [
+            "config"
+          ]
+        },
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  118,
+                  101,
+                  114,
+                  105,
+                  102,
+                  105,
+                  101,
+                  114,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "circuit",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  105,
+                  114,
+                  99,
+                  117,
+                  105,
+                  116
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "circuit_id"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "circuit_id",
+          "type": "u32"
+        },
+        {
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "name": "proof_type",
+          "type": {
+            "defined": {
+              "name": "ProofType"
+            }
+          }
+        },
+        {
+          "name": "verifying_key",
+          "type": "bytes"
+        },
+        {
+          "name": "public_input_count",
+          "type": "u8"
+        }
+      ]
+    },
+    {
+      "name": "revoke_proof",
+      "docs": [
+        "Soft-revoke one of your own proofs."
+      ],
+      "discriminator": [
+        59,
+        117,
+        210,
+        117,
+        75,
+        24,
+        100,
+        117
+      ],
+      "accounts": [
+        {
+          "name": "authority",
+          "signer": true,
+          "relations": [
+            "proof_account"
+          ]
+        },
+        {
+          "name": "proof_account",
+          "writable": true
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "set_circuit_enabled",
+      "docs": [
+        "Enable or disable a registered circuit (admin only)."
+      ],
+      "discriminator": [
+        12,
+        197,
+        13,
+        224,
+        26,
+        196,
+        107,
+        45
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "signer": true,
+          "relations": [
+            "config"
+          ]
+        },
+        {
+          "name": "config",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  118,
+                  101,
+                  114,
+                  105,
+                  102,
+                  105,
+                  101,
+                  114,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "circuit",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  105,
+                  114,
+                  99,
+                  117,
+                  105,
+                  116
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "circuit_id"
+              }
+            ]
+          }
+        }
+      ],
+      "args": [
+        {
+          "name": "circuit_id",
+          "type": "u32"
+        },
+        {
+          "name": "enabled",
+          "type": "bool"
+        }
+      ]
+    },
+    {
+      "name": "update_config",
+      "docs": [
+        "Update config fields (admin only)."
+      ],
+      "discriminator": [
+        29,
+        158,
+        252,
+        191,
+        10,
+        83,
+        219,
+        99
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "signer": true,
+          "relations": [
+            "config"
+          ]
+        },
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  118,
+                  101,
+                  114,
+                  105,
+                  102,
+                  105,
+                  101,
+                  114,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "args": [
+        {
+          "name": "new_fee",
+          "type": {
+            "option": "u64"
+          }
+        },
+        {
+          "name": "new_paused",
+          "type": {
+            "option": "bool"
+          }
+        },
+        {
+          "name": "new_treasury",
+          "type": {
+            "option": "pubkey"
+          }
+        }
+      ]
+    },
+    {
+      "name": "verify_proof",
+      "docs": [
+        "Verify a Groth16 proof on-chain and record an attestation."
+      ],
+      "discriminator": [
+        217,
+        211,
+        191,
+        110,
+        144,
+        13,
+        186,
+        98
+      ],
+      "accounts": [
+        {
+          "name": "user",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  118,
+                  101,
+                  114,
+                  105,
+                  102,
+                  105,
+                  101,
+                  114,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "circuit",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  105,
+                  114,
+                  99,
+                  117,
+                  105,
+                  116
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "circuit_id"
+              }
+            ]
+          }
+        },
+        {
+          "name": "user_account",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  117,
+                  115,
+                  101,
+                  114
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "user"
+              }
+            ]
+          }
+        },
+        {
+          "name": "proof_account",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  114,
+                  111,
+                  111,
+                  102
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "user"
+              },
+              {
+                "kind": "arg",
+                "path": "nonce"
+              }
+            ]
+          }
+        },
+        {
+          "name": "treasury",
+          "writable": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "circuit_id",
+          "type": "u32"
+        },
+        {
+          "name": "proof_a",
+          "type": {
+            "array": [
+              "u8",
+              64
+            ]
+          }
+        },
+        {
+          "name": "proof_b",
+          "type": {
+            "array": [
+              "u8",
+              128
+            ]
+          }
+        },
+        {
+          "name": "proof_c",
+          "type": {
+            "array": [
+              "u8",
+              64
+            ]
+          }
+        },
+        {
+          "name": "public_inputs",
+          "type": {
+            "vec": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          }
+        },
+        {
+          "name": "nonce",
+          "type": "u64"
+        }
+      ]
+    }
+  ],
+  "accounts": [
+    {
+      "name": "CircuitRegistry",
+      "discriminator": [
+        248,
+        61,
+        106,
+        55,
+        138,
+        152,
+        88,
+        37
+      ]
+    },
+    {
+      "name": "ProofAccount",
+      "discriminator": [
+        54,
+        244,
+        192,
+        233,
+        218,
+        58,
+        44,
+        242
+      ]
+    },
+    {
+      "name": "UserAccount",
+      "discriminator": [
+        211,
+        33,
+        136,
+        16,
+        186,
+        110,
+        242,
+        127
+      ]
+    },
+    {
+      "name": "VerifierConfig",
+      "discriminator": [
+        176,
+        103,
+        248,
+        36,
+        138,
+        167,
+        176,
+        220
+      ]
+    }
+  ],
+  "events": [
+    {
+      "name": "AdminTransferAccepted",
+      "discriminator": [
+        79,
+        229,
+        204,
+        202,
+        134,
+        43,
+        177,
+        26
+      ]
+    },
+    {
+      "name": "AdminTransferProposed",
+      "discriminator": [
+        203,
+        168,
+        175,
+        51,
+        239,
+        104,
+        20,
+        85
+      ]
+    },
+    {
+      "name": "CircuitRegistered",
+      "discriminator": [
+        237,
+        254,
+        63,
+        233,
+        38,
+        74,
+        220,
+        153
+      ]
+    },
+    {
+      "name": "ConfigUpdated",
+      "discriminator": [
+        40,
+        241,
+        230,
+        122,
+        11,
+        19,
+        198,
+        194
+      ]
+    },
+    {
+      "name": "ProofRevoked",
+      "discriminator": [
+        180,
+        50,
+        127,
+        28,
+        218,
+        29,
+        35,
+        42
+      ]
+    },
+    {
+      "name": "ProofVerified",
+      "discriminator": [
+        181,
+        54,
+        148,
+        211,
+        237,
+        73,
+        131,
+        232
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "ProgramPaused",
+      "msg": "Program is paused"
+    },
+    {
+      "code": 6001,
+      "name": "CircuitNotFound",
+      "msg": "Circuit not found"
+    },
+    {
+      "code": 6002,
+      "name": "CircuitDisabled",
+      "msg": "Circuit is disabled"
+    },
+    {
+      "code": 6003,
+      "name": "InvalidPublicInputCount",
+      "msg": "Invalid public input count"
+    },
+    {
+      "code": 6004,
+      "name": "InvalidProofFormat",
+      "msg": "Invalid proof format"
+    },
+    {
+      "code": 6005,
+      "name": "ProofVerificationFailed",
+      "msg": "Proof verification failed"
+    },
+    {
+      "code": 6006,
+      "name": "InsufficientFunds",
+      "msg": "Insufficient funds"
+    },
+    {
+      "code": 6007,
+      "name": "Unauthorized",
+      "msg": "Unauthorized"
+    },
+    {
+      "code": 6008,
+      "name": "InvalidAdmin",
+      "msg": "Invalid admin"
+    },
+    {
+      "code": 6009,
+      "name": "NoPendingAdminTransfer",
+      "msg": "No pending admin transfer"
+    },
+    {
+      "code": 6010,
+      "name": "NonceAlreadyUsed",
+      "msg": "Nonce already used"
+    },
+    {
+      "code": 6011,
+      "name": "InvalidVerifyingKey",
+      "msg": "Invalid verifying key"
+    },
+    {
+      "code": 6012,
+      "name": "ProofAlreadyExists",
+      "msg": "Proof already exists"
+    }
+  ],
+  "types": [
+    {
+      "name": "AdminTransferAccepted",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "old_admin",
+            "type": "pubkey"
+          },
+          {
+            "name": "new_admin",
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "AdminTransferProposed",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "current_admin",
+            "type": "pubkey"
+          },
+          {
+            "name": "new_admin",
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "CircuitRegistered",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "circuit_id",
+            "type": "u32"
+          },
+          {
+            "name": "name",
+            "type": "string"
+          },
+          {
+            "name": "admin",
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "CircuitRegistry",
+      "docs": [
+        "Per-circuit registry entry. PDA seeds: [\"circuit\", circuit_id u32 LE]."
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "circuit_id",
+            "type": "u32"
+          },
+          {
+            "name": "name",
+            "type": "string"
+          },
+          {
+            "name": "proof_type",
+            "type": {
+              "defined": {
+                "name": "ProofType"
+              }
+            }
+          },
+          {
+            "name": "verifying_key",
+            "docs": [
+              "Serialized Groth16 verifying key (alpha|beta|gamma|delta|ic…), big-endian."
+            ],
+            "type": "bytes"
+          },
+          {
+            "name": "public_input_count",
+            "type": "u8"
+          },
+          {
+            "name": "enabled",
+            "type": "bool"
+          },
+          {
+            "name": "created_at",
+            "type": "i64"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ConfigUpdated",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "admin",
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ProofAccount",
+      "docs": [
+        "Per-proof attestation. PDA seeds: [\"proof\", authority, nonce u64 LE], where",
+        "`nonce` is a client-generated cryptographically random u64. The `init`",
+        "constraint makes a reused nonce fail (auto duplicate rejection)."
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "authority",
+            "type": "pubkey"
+          },
+          {
+            "name": "circuit_id",
+            "type": "u32"
+          },
+          {
+            "name": "proof_type",
+            "type": {
+              "defined": {
+                "name": "ProofType"
+              }
+            }
+          },
+          {
+            "name": "public_inputs",
+            "type": {
+              "vec": {
+                "array": [
+                  "u8",
+                  32
+                ]
+              }
+            }
+          },
+          {
+            "name": "proof_hash",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "verified",
+            "type": "bool"
+          },
+          {
+            "name": "verified_at",
+            "type": "i64"
+          },
+          {
+            "name": "slot_verified",
+            "type": "u64"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ProofRevoked",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "authority",
+            "type": "pubkey"
+          },
+          {
+            "name": "proof_account",
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ProofType",
+      "docs": [
+        "The kind of statement a circuit proves."
+      ],
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Balance"
+          },
+          {
+            "name": "Ownership"
+          },
+          {
+            "name": "Age"
+          },
+          {
+            "name": "Membership"
+          },
+          {
+            "name": "Custom"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ProofVerified",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "authority",
+            "type": "pubkey"
+          },
+          {
+            "name": "proof_account",
+            "type": "pubkey"
+          },
+          {
+            "name": "circuit_id",
+            "type": "u32"
+          },
+          {
+            "name": "proof_type",
+            "type": {
+              "defined": {
+                "name": "ProofType"
+              }
+            }
+          },
+          {
+            "name": "slot",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "UserAccount",
+      "docs": [
+        "Per-user account. PDA seeds: [\"user\", authority]. `proof_count` is for stats",
+        "only — it is NOT a PDA seed source (nonces are client-random)."
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "authority",
+            "type": "pubkey"
+          },
+          {
+            "name": "proof_count",
+            "type": "u64"
+          },
+          {
+            "name": "first_seen",
+            "type": "i64"
+          },
+          {
+            "name": "last_active",
+            "type": "i64"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "VerifierConfig",
+      "docs": [
+        "Singleton program config. PDA seeds: [\"verifier_config\"]."
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "admin",
+            "type": "pubkey"
+          },
+          {
+            "name": "pending_admin",
+            "type": {
+              "option": "pubkey"
+            }
+          },
+          {
+            "name": "paused",
+            "type": "bool"
+          },
+          {
+            "name": "proof_fee_lamports",
+            "type": "u64"
+          },
+          {
+            "name": "treasury",
+            "type": "pubkey"
+          },
+          {
+            "name": "registered_circuits",
+            "type": "u32"
+          },
+          {
+            "name": "total_proofs_verified",
+            "type": "u64"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    }
+  ],
+  "constants": [
+    {
+      "name": "CIRCUIT_SEED",
+      "type": "bytes",
+      "value": "[99, 105, 114, 99, 117, 105, 116]"
+    },
+    {
+      "name": "PROOF_SEED",
+      "type": "bytes",
+      "value": "[112, 114, 111, 111, 102]"
+    },
+    {
+      "name": "USER_SEED",
+      "type": "bytes",
+      "value": "[117, 115, 101, 114]"
+    },
+    {
+      "name": "VERIFIER_CONFIG_SEED",
+      "type": "bytes",
+      "value": "[118, 101, 114, 105, 102, 105, 101, 114, 95, 99, 111, 110, 102, 105, 103]"
+    }
+  ]
+}

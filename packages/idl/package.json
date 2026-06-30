@@ -1,0 +1,19 @@
+{
+  "name": "@zkhelios/idl",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Generated Anchor IDL + TypeScript types for the zkHelios verifier program.",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./json": "./zkhelios.json"
+  },
+  "scripts": {
+    "type-check": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@zkhelios/tsconfig": "workspace:*",
+    "typescript": "^5.5.4"
+  }
+}

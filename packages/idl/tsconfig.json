@@ -1,0 +1,7 @@
+{
+  "extends": "@zkhelios/tsconfig/base.json",
+  "compilerOptions": {
+    "resolveJsonModule": true
+  },
+  "include": ["src", "zkhelios.json"]
+}

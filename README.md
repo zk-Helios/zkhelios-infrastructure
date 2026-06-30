@@ -15,6 +15,7 @@ Built in sequential sessions per `reference/zkhelios-solana-prompts.md`.
 **Solana Session 3 — Dashboard, Transaction History & Real-Time Data — ✅**
 **Solana Session 4 — Prove & Verify (client-side ZK + on-chain submit) — ✅**
 **Solana Session 5 — Explorer, Docs Site & Production Polish — ✅ (frontend track complete)**
+**Solana Session 6 — Anchor Verifier Program (real Groth16 / alt_bn128) — ✅**
 
 ## Monorepo layout
 
@@ -28,15 +29,17 @@ zkhelios/                    # pnpm workspaces + Turborepo
 │  ├─ ui/                    # Shared React primitives (Button, Card, Logo, …)
 │  ├─ ui-tokens/             # Design tokens + Tailwind preset
 │  ├─ sdk-ts/                # @zkhelios/sdk — TypeScript SDK (proofs/format/share/client)
+│  ├─ idl/                   # @zkhelios/idl — generated Anchor IDL + TS types (S6)
 │  ├─ config-tsconfig/       # Shared TS configs (@zkhelios/tsconfig)
 │  └─ config-eslint/         # Shared ESLint config (@zkhelios/eslint-config)
+├─ zkhelios/                 # Anchor workspace — on-chain Groth16 verifier (Rust, S6)
+│  └─ programs/zkhelios/     #   alt_bn128 verifier + tests (litesvm + arkworks)
 ├─ .github/workflows/        # CI (lint · type-check · test · build)
 ├─ public/Assets/            # Source brand assets
 └─ reference/                # Build prompt packs (do not put work here)
 ```
 
-Planned (later sessions): `programs/zkhelios` Anchor program + `packages/idl` (S6),
-`apps/api` + `packages/db` / `shared-types` (S7+).
+Planned (later sessions): `apps/api` + `packages/db` / `shared-types` (S7+).
 
 ## Quick start
 
@@ -88,7 +91,34 @@ Contracts + SIWS flow diagram: [`apps/dapp/API_CONTRACT.md`](apps/dapp/API_CONTR
 
 ---
 
-## HANDOFF NOTES → Solana Session 6 (Anchor Verifier Program) — on-chain track begins
+## HANDOFF NOTES → Solana Session 7 (Backend Foundation, DB & Auth)
+
+### What Session 6 added (on-chain track begins)
+
+- **Anchor program** (`zkhelios/`, Anchor 1.1.2): `verify_proof` performs a **real
+  Groth16/BN254 verification** via Solana `alt_bn128` syscalls (`~100k CU`), plus
+  initialize, register_circuit, set_circuit_enabled, create_user_account, revoke/close,
+  update_config, two-step admin transfer. PDAs + error codes 6000–6012 match the dApp.
+- **Nonce**: client-random `u64` + `init` constraint on ProofAccount (auto duplicate
+  reject). Frontend reconciled (`submit.ts` → `crypto.getRandomValues`).
+- **Tests**: `cargo test` (litesvm), **11/11 green** — the happy path generates a
+  **real arkworks Groth16 proof** and verifies it on-chain; failure paths (tampered
+  proof, wrong input count, dup nonce, paused/disabled, non-admin), fee transfer,
+  revoke/close, admin transfer all covered. CU asserted < 300k.
+- **IDL** exported → `packages/idl` (`@zkhelios/idl`, 10 ix / 4 accounts / 13 errors).
+  Bootstrap (`scripts/bootstrap-localnet.ts`) + IDL sync (`scripts/sync-idl.sh`).
+- Toolchain installed: Solana CLI 4.0.2, Anchor 1.1.2, `cargo-build-sbf`.
+
+Program reference + CU benchmark + security checklist: [`zkhelios/README.md`](zkhelios/README.md).
+
+### TODOs for Session 7 (backend)
+
+- `apps/api` (Fastify) + `packages/db` (Prisma/Postgres) + `packages/shared-types`.
+- SIWS auth server-side (mirror the dApp's `/api/auth/*` mock contract; tweetnacl ed25519).
+- Indexer plan for `ProofVerified` / `CircuitRegistered` events (Helius webhooks / RPC).
+- Integration step (later): wire the dApp's `lib/anchor.ts` to `@zkhelios/idl` and bump
+  the dApp's `@coral-xyz/anchor` (^0.30 → 1.x) so the 1.x IDL deserializes; deploy to devnet
+  and set `NEXT_PUBLIC_PROGRAM_ID`. Swap the mock prover for real `snarkjs` + circuit artifacts.
 
 ### What Session 5 added (frontend track complete)
 

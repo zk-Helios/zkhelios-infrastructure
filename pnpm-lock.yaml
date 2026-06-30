@@ -302,6 +302,15 @@ importers:
 
   packages/config-tsconfig: {}
 
+  packages/idl:
+    devDependencies:
+      '@zkhelios/tsconfig':
+        specifier: workspace:*
+        version: link:../config-tsconfig
+      typescript:
+        specifier: ^5.5.4
+        version: 5.9.3
+
   packages/sdk-ts:
     devDependencies:
       '@types/node':

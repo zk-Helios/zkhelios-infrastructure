@@ -36,7 +36,11 @@ export async function submitProof(
   onProgress: (p: SubmitProgress) => void,
 ): Promise<{ signature: string; proofAccount: string; args: SolanaProofArgs }> {
   const args = groth16ToSolana(bundle.proof, bundle.publicSignals);
-  const nonce = BigInt(Date.now());
+  // Client-generated cryptographically random u64 nonce. The ProofAccount PDA
+  // uses [authority, nonce] and the program's `init` constraint rejects a reused
+  // nonce — so randomness (2^64 space) avoids collisions with no extra RPC fetch
+  // and no griefable/predictable timestamp (vs. a sequential counter or Date.now()).
+  const nonce = crypto.getRandomValues(new BigUint64Array(1))[0];
   const [proofPda] = findProofAccountPDA(authority, nonce);
   const proofAccount = proofPda.toBase58();
 
