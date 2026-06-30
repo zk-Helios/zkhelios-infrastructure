@@ -19,6 +19,15 @@ import { authPlugin } from "./plugins/auth";
 import { healthRoutes } from "./modules/health/routes";
 import { authRoutes } from "./modules/auth/routes";
 import { userRoutes } from "./modules/users/routes";
+import { transactionRoutes } from "./modules/transactions/routes";
+import { proofRoutes } from "./modules/proofs/routes";
+import { circuitRoutes } from "./modules/circuits/routes";
+import { statsRoutes } from "./modules/stats/routes";
+import { blockRoutes } from "./modules/blocks/routes";
+import { searchRoutes } from "./modules/search/routes";
+import { priceRoutes } from "./modules/prices/routes";
+import { webhookRoutes } from "./modules/webhooks/routes";
+import { realtimePlugin } from "./modules/realtime/ws";
 
 export async function buildServer(envOverride?: Env): Promise<FastifyInstance> {
   const env = envOverride ?? loadEnv();
@@ -57,10 +66,21 @@ export async function buildServer(envOverride?: Env): Promise<FastifyInstance> {
   await app.register(errorHandler);
   await app.register(authPlugin, { env });
 
+  // Realtime WS (registers @fastify/websocket + /ws).
+  await app.register(realtimePlugin, { env });
+
   // Modules.
   await app.register(healthRoutes, { env });
   await app.register(authRoutes, { env, prefix: "/api/auth" });
   await app.register(userRoutes, { prefix: "/api/users" });
+  await app.register(transactionRoutes, { prefix: "/api/transactions" });
+  await app.register(proofRoutes, { prefix: "/api/proofs" });
+  await app.register(circuitRoutes, { env, prefix: "/api/circuits" });
+  await app.register(statsRoutes, { env, prefix: "/api/stats" });
+  await app.register(blockRoutes, { prefix: "/api/blocks" });
+  await app.register(searchRoutes, { prefix: "/api/search" });
+  await app.register(priceRoutes, { env, prefix: "/api/prices" });
+  await app.register(webhookRoutes, { env, prefix: "/webhooks" });
 
   return app;
 }

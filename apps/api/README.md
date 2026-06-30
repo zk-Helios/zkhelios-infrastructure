@@ -41,6 +41,19 @@ pnpm --filter @zkhelios/api dev            # → http://localhost:4000  (docs at
   `DELETE /api/auth/sessions/:id`, `DELETE /api/auth/sessions`
 - **Users**: `GET/PATCH /api/users/me`, `GET /api/users/:pubkey`,
   `GET/POST /api/users/me/watched`, `DELETE /api/users/me/watched/:id`
+- **Transactions** (S8): `GET /api/transactions` (filters+cursor), `/:signature`,
+  `/me`, `/me/export` (CSV)
+- **Proofs** (S8): `GET /api/proofs`, `/:proofAccount`, `/me`, `/by-circuit/:id`
+- **Circuits** (S8): `GET /api/circuits`, `/:id`; admin `POST /:id/enable|disable`
+- **Stats** (S8): `GET /api/stats/overview|network|timeseries|leaderboard`
+- **Blocks** (S8): `GET /api/blocks`, `/:slot`
+- **Search** (S8): `GET /api/search?q=` (signature/pubkey/proof/slot)
+- **Prices** (S8): `GET /api/prices?mints=` (Jupiter, cached)
+- **Webhook** (S8): `POST /webhooks/helius`
+- **Realtime** (S8): `WS /ws` — channels `stats`, `proofs`, `address:{pubkey}:txs`,
+  `user:proofs`, `user:notifications`
+- **Workers** (S8): `pnpm --filter @zkhelios/api indexer` (RPC poller),
+  `worker:stats` (BullMQ stats aggregator)
 - **OpenAPI**: Swagger UI at `/docs` (dev)
 
 ## Auth flow (SIWS)

@@ -17,6 +17,7 @@ Built in sequential sessions per `reference/zkhelios-solana-prompts.md`.
 **Solana Session 5 — Explorer, Docs Site & Production Polish — ✅ (frontend track complete)**
 **Solana Session 6 — Anchor Verifier Program (real Groth16 / alt_bn128) — ✅**
 **Solana Session 7 — Backend Foundation, Database & SIWS Auth — ✅**
+**Solana Session 8 — Indexer, Transactions & Real-Time Stats — ✅**
 
 ## Monorepo layout
 
@@ -96,7 +97,36 @@ Contracts + SIWS flow diagram: [`apps/dapp/API_CONTRACT.md`](apps/dapp/API_CONTR
 
 ---
 
-## HANDOFF NOTES → Solana Session 8 (Indexer, Transactions & Realtime)
+## HANDOFF NOTES → Solana Session 9 (Notifications, Jobs & Admin)
+
+### What Session 8 added (indexer + read APIs + realtime)
+
+- **Indexer** (`workers/indexer.ts`): RPC poller (Redis cursor, idempotent, backoff)
+  that decodes Anchor events (`lib/anchor-events.ts` via BorshCoder/EventParser) and
+  dispatches `ProofVerified`/`ProofRevoked`/`CircuitRegistered` → DB + pub/sub. Helius
+  webhook (`POST /webhooks/helius`) as the production path.
+- **Read APIs**: transactions (filters + cursor + CSV export), proofs, circuits
+  (+admin enable/disable), stats (overview/network/timeseries/leaderboard, Redis-cached),
+  blocks, universal search, Jupiter prices.
+- **Realtime**: `@fastify/websocket` `/ws` with the subscription model the dApp expects
+  (`stats`/`proofs`/`address:{pubkey}:txs`/`user:proofs`/`user:notifications`), bridging
+  Redis pub/sub, with sub limits + heartbeat/idle-timeout.
+- **Stats aggregator** (`workers/stats-aggregator.ts`): BullMQ repeatable (1/min) →
+  `NetworkStat` + `stats:update` publish.
+- **Caching**: versioned Redis keys + TTLs (`lib/cache.ts`); pub/sub helper (`lib/pubsub.ts`).
+
+**Verified:** all 10 packages type-check ✓; API unit tests **21/21** ✓ (SIWS verify,
+search classify, event normalize, cursor/CSV); API builds ✓.
+**Not run here (no Postgres/Redis/RPC):** the indexer, live endpoints, and WS — run via
+`docker compose` + a devnet RPC. The Anchor event decoder may need `@coral-xyz/anchor`
+aligned to the 1.x IDL (same reconciliation flagged in S6/S7); it's isolated + fails safe.
+
+### TODOs for Session 9
+
+- Notifications (in-app + email + web-push), notification worker subscribing to the
+  pub/sub events, preferences, email verification. Background jobs (session cleanup,
+  digest, circuit resync). Admin module (announcements, user lock, queue board, metrics).
+- Prometheus `/metrics`.
 
 ### What Session 7 added (backend foundation)
 
