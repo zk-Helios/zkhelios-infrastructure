@@ -1,0 +1,214 @@
+// zkHelios database schema (PostgreSQL 16 + Prisma 5).
+// Solana-shaped: base58 pubkeys/signatures, lamports, slots.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum TxStatus {
+  SUCCESS
+  FAILED
+}
+
+enum ProofType {
+  BALANCE
+  OWNERSHIP
+  AGE
+  MEMBERSHIP
+  CUSTOM
+}
+
+enum NotificationType {
+  PROOF_VERIFIED
+  PROOF_REVOKED
+  SYSTEM
+  CIRCUIT_REGISTERED
+}
+
+model User {
+  id            String   @id @default(cuid())
+  pubkey        String   @unique // Solana pubkey, base58
+  role          Role     @default(USER)
+  displayName   String?
+  email         String?  @unique
+  emailVerified Boolean  @default(false)
+  nonce         String?
+  locked        Boolean  @default(false)
+
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  lastSeenAt DateTime?
+
+  notificationPrefs Json   @default("{}")
+  preferredCurrency String @default("USD")
+
+  sessions         Session[]
+  proofs           ProofRecord[]
+  watchedAddresses WatchedAddress[]
+  notifications    Notification[]
+
+  @@index([pubkey])
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token     String   @unique // JWT id (jti)
+  ip        String?
+  userAgent String?
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+model Transaction {
+  id           String    @id @default(cuid())
+  signature    String    @unique // base58, ~88 chars
+  slot         BigInt
+  blockTime    DateTime?
+  fee          BigInt // lamports
+  feePayer     String // pubkey
+  status       TxStatus
+  computeUnits Int?
+  programIds   String[] // pubkeys of invoked programs
+
+  errorMessage String?
+  rawLogs      String[] @db.Text
+
+  involvesUserId String?
+
+  createdAt DateTime @default(now())
+
+  instructions InstructionRecord[]
+
+  @@index([feePayer])
+  @@index([slot])
+  @@index([blockTime])
+  @@index([involvesUserId])
+}
+
+model InstructionRecord {
+  id            String      @id @default(cuid())
+  transactionId String
+  transaction   Transaction @relation(fields: [transactionId], references: [id], onDelete: Cascade)
+  index         Int
+  programId     String
+  accounts      String[] // pubkeys
+  data          Bytes
+  decoded       Json? // if program IDL known
+
+  @@index([transactionId, index])
+  @@index([programId])
+}
+
+model ProofRecord {
+  id           String @id @default(cuid())
+  proofAccount String @unique // PDA pubkey
+  signature    String // submission tx signature
+  authority    String // user pubkey
+
+  circuitId   Int
+  circuitName String
+  proofType   ProofType
+
+  publicInputs Json
+  proofData    String @db.Text // hex-encoded raw proof
+
+  verified     Boolean
+  verifiedAt   DateTime
+  slotVerified BigInt
+
+  revoked   Boolean   @default(false)
+  revokedAt DateTime?
+
+  userId String?
+  user   User?   @relation(fields: [userId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@index([authority])
+  @@index([proofType])
+  @@index([slotVerified])
+  @@index([userId])
+}
+
+model Circuit {
+  id               Int       @id // matches on-chain circuit_id
+  name             String    @unique
+  proofType        ProofType
+  description      String?
+  publicInputCount Int
+  verifyingKey     String    @db.Text // hex-encoded
+  wasmUrl          String?
+  zkeyUrl          String?
+  enabled          Boolean   @default(true)
+  registeredSlot   BigInt
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model BlockSnapshot {
+  slot       BigInt    @id
+  blockhash  String    @unique
+  parentSlot BigInt
+  blockTime  DateTime?
+  txCount    Int
+
+  createdAt DateTime @default(now())
+
+  @@index([blockTime])
+}
+
+model WatchedAddress {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  pubkey    String
+  label     String?
+  createdAt DateTime @default(now())
+
+  @@unique([userId, pubkey])
+}
+
+model Notification {
+  id        String           @id @default(cuid())
+  userId    String
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      NotificationType
+  title     String
+  body      String
+  data      Json?
+  read      Boolean          @default(false)
+  createdAt DateTime         @default(now())
+
+  @@index([userId, read])
+  @@index([createdAt])
+}
+
+model NetworkStat {
+  id              String   @id @default(cuid())
+  timestamp       DateTime @unique
+  tps             Float
+  slot            BigInt
+  totalProofs     BigInt
+  proofs24h       Int
+  avgVerifyTimeMs Int
+  activeUsers24h  Int
+  rpcLatencyMs    Int
+
+  @@index([timestamp])
+}

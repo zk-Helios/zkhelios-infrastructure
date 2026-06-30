@@ -16,6 +16,7 @@ Built in sequential sessions per `reference/zkhelios-solana-prompts.md`.
 **Solana Session 4 — Prove & Verify (client-side ZK + on-chain submit) — ✅**
 **Solana Session 5 — Explorer, Docs Site & Production Polish — ✅ (frontend track complete)**
 **Solana Session 6 — Anchor Verifier Program (real Groth16 / alt_bn128) — ✅**
+**Solana Session 7 — Backend Foundation, Database & SIWS Auth — ✅**
 
 ## Monorepo layout
 
@@ -24,12 +25,15 @@ zkhelios/                    # pnpm workspaces + Turborepo
 ├─ apps/
 │  ├─ web/                   # Next.js 14 marketing site (port 3000)
 │  ├─ dapp/                  # Next.js 14 dApp — Wallet Adapter + SIWS (port 3001)
-│  └─ docs/                  # Next.js 14 docs site (port 3002)
+│  ├─ docs/                  # Next.js 14 docs site (port 3002)
+│  └─ api/                   # Fastify backend — SIWS auth + users (port 4000, S7)
 ├─ packages/
 │  ├─ ui/                    # Shared React primitives (Button, Card, Logo, …)
 │  ├─ ui-tokens/             # Design tokens + Tailwind preset
 │  ├─ sdk-ts/                # @zkhelios/sdk — TypeScript SDK (proofs/format/share/client)
 │  ├─ idl/                   # @zkhelios/idl — generated Anchor IDL + TS types (S6)
+│  ├─ db/                    # @zkhelios/db — Prisma schema + client (S7)
+│  ├─ shared-types/          # @zkhelios/shared-types — API ↔ frontend types (S7)
 │  ├─ config-tsconfig/       # Shared TS configs (@zkhelios/tsconfig)
 │  └─ config-eslint/         # Shared ESLint config (@zkhelios/eslint-config)
 ├─ zkhelios/                 # Anchor workspace — on-chain Groth16 verifier (Rust, S6)
@@ -39,7 +43,8 @@ zkhelios/                    # pnpm workspaces + Turborepo
 └─ reference/                # Build prompt packs (do not put work here)
 ```
 
-Planned (later sessions): `apps/api` + `packages/db` / `shared-types` (S7+).
+Planned (later sessions): indexer + transactions/proofs/stats APIs + realtime WS (S8),
+notifications + jobs + admin (S9), security + deploy + observability (S10).
 
 ## Quick start
 
@@ -91,7 +96,40 @@ Contracts + SIWS flow diagram: [`apps/dapp/API_CONTRACT.md`](apps/dapp/API_CONTR
 
 ---
 
-## HANDOFF NOTES → Solana Session 7 (Backend Foundation, DB & Auth)
+## HANDOFF NOTES → Solana Session 8 (Indexer, Transactions & Realtime)
+
+### What Session 7 added (backend foundation)
+
+- **`apps/api`** (Fastify 4): Zod-validated env (fail-fast), Pino logging w/ redaction,
+  global error handler + custom error classes, health checks (`/health`, `/live`,
+  `/ready` checks DB+Redis), OpenAPI/Swagger at `/docs`, cors/helmet/rate-limit/cookie,
+  Redis clients + BullMQ queue defs (indexer-backfill, notification-sender, stats-aggregator).
+- **SIWS auth** (`modules/auth`): nonce → verify (tweetnacl ed25519) → JWT httpOnly
+  cookie (jti = session id); logout/me/refresh + session list/revoke/revoke-all; rate
+  limits (nonce 10/min, verify 5/min) + address lockout (10 fails/1h); `authenticate` /
+  `requireAdmin` decorators.
+- **Users** (`modules/users`): me / patch (displayName/email/prefs) / public `:pubkey`
+  profile / watched-address CRUD.
+- **`packages/db`** (Prisma 5): full schema (User, Session, Transaction, InstructionRecord,
+  ProofRecord, Circuit, BlockSnapshot, WatchedAddress, Notification, NetworkStat + enums) —
+  **validated**, client **generated**, initial migration SQL written, seed script.
+- **`packages/shared-types`**: API↔frontend types + error codes.
+- Docker (multi-stage `Dockerfile` + `docker-compose.yml`: api+postgres+redis), `.env.example`.
+
+**Verified:** all 10 packages type-check ✓; API unit tests (SIWS verify) **7/7** ✓; API
+builds to `dist/` ✓; Prisma schema valid + client generated ✓; lint ✓.
+**Not run here (no Postgres/Redis/Docker in this env):** live server + DB integration
+tests — run via `docker compose -f apps/api/docker-compose.yml up`.
+Setup + endpoints: [`apps/api/README.md`](apps/api/README.md).
+
+### TODOs for Session 8
+
+- Indexer worker: ingest `ProofVerified` / `CircuitRegistered` events (Helius webhooks +
+  RPC polling); transactions/proofs/circuits/stats read APIs; cursor pagination; `/search`.
+- Realtime: `@fastify/websocket` `/ws` with the channel model the dApp already expects
+  (`stats`, `proofs`, `user:notifications`, `address:{pubkey}:txs`).
+- Swap the dApp's mock API client (`apps/dapp/src/lib/api/mock.ts`) for the real REST/WS;
+  generate `packages/shared-types` from OpenAPI; replace SIWS mock routes with this backend.
 
 ### What Session 6 added (on-chain track begins)
 

@@ -1,0 +1,4 @@
+{
+  "extends": "@zkhelios/tsconfig/base.json",
+  "include": ["src"]
+}

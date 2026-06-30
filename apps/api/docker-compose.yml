@@ -1,0 +1,51 @@
+# Full local stack: Postgres + Redis + API.
+# Run from repo root:  docker compose -f apps/api/docker-compose.yml up --build
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: zk
+      POSTGRES_PASSWORD: zk
+      POSTGRES_DB: zkhelios
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U zk -d zkhelios"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  api:
+    build:
+      context: ../..
+      dockerfile: apps/api/Dockerfile
+    environment:
+      NODE_ENV: production
+      PORT: 4000
+      DATABASE_URL: postgresql://zk:zk@postgres:5432/zkhelios?schema=public
+      REDIS_URL: redis://redis:6379
+      AUTH_JWT_SECRET: docker_dev_secret_change_me_min_32_chars_long
+      CORS_ORIGINS: http://localhost:3001,http://localhost:3000
+      EXPECTED_DOMAIN: localhost:3001
+    ports:
+      - "4000:4000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+volumes:
+  pgdata:

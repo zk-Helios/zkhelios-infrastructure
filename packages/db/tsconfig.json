@@ -1,0 +1,8 @@
+{
+  "extends": "@zkhelios/tsconfig/base.json",
+  "compilerOptions": {
+    "module": "CommonJS",
+    "moduleResolution": "Node"
+  },
+  "include": ["src", "prisma"]
+}
