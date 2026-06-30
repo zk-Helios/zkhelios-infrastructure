@@ -1,8 +1,7 @@
 name: Deploy
 
+# Manual-only until a deploy target + secrets (ghcr, kube context) are configured.
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
 
 concurrency:
