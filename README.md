@@ -1,6 +1,10 @@
-# zkHelios
+<p align="center">
+  <img src=".github/banner.png" alt="zkHelios" width="640" />
+</p>
 
-> Zero-knowledge proofs on Solana — prove what matters, reveal only what you choose.
+<p align="center">
+  <strong>Zero-knowledge proofs on Solana — prove what matters, reveal only what you choose.</strong>
+</p>
 
 zkHelios lets you generate a Groth16 proof client-side (balance, ownership,
 membership, age, or a custom circuit) and verify it on-chain in a single Solana
