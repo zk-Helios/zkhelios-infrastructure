@@ -52,12 +52,25 @@ model User {
   notificationPrefs Json   @default("{}")
   preferredCurrency String @default("USD")
 
-  sessions         Session[]
-  proofs           ProofRecord[]
-  watchedAddresses WatchedAddress[]
-  notifications    Notification[]
+  sessions          Session[]
+  proofs            ProofRecord[]
+  watchedAddresses  WatchedAddress[]
+  notifications     Notification[]
+  pushSubscriptions PushSubscription[]
 
   @@index([pubkey])
+}
+
+model PushSubscription {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  endpoint  String   @unique
+  p256dh    String
+  auth      String
+  createdAt DateTime @default(now())
+
+  @@index([userId])
 }
 
 model Session {

@@ -52,8 +52,14 @@ pnpm --filter @zkhelios/api dev            # → http://localhost:4000  (docs at
 - **Webhook** (S8): `POST /webhooks/helius`
 - **Realtime** (S8): `WS /ws` — channels `stats`, `proofs`, `address:{pubkey}:txs`,
   `user:proofs`, `user:notifications`
-- **Workers** (S8): `pnpm --filter @zkhelios/api indexer` (RPC poller),
-  `worker:stats` (BullMQ stats aggregator)
+- **Notifications** (S9): `GET /api/notifications`, `POST /:id/read`, `/read-all`,
+  `DELETE /:id`, `GET/PATCH /preferences`, `POST /email/verify-start|verify-confirm`,
+  `POST/DELETE /push/subscribe`
+- **Admin** (S9, requireAdmin): `POST /api/admin/announcements`, `GET /users`,
+  `POST /users/:pubkey/lock|unlock`, `GET /queues`, `GET /stats`, `GET /health/detailed`
+- **Metrics** (S9): Prometheus at `GET /metrics`
+- **Workers**: `indexer` (S8), `worker:stats` (S8), `worker:notifications` (S9),
+  `worker:scheduled` (S9, BullMQ repeatable: session cleanup / digest / circuit resync)
 - **OpenAPI**: Swagger UI at `/docs` (dev)
 
 ## Auth flow (SIWS)

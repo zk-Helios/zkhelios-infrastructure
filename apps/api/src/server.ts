@@ -28,6 +28,9 @@ import { searchRoutes } from "./modules/search/routes";
 import { priceRoutes } from "./modules/prices/routes";
 import { webhookRoutes } from "./modules/webhooks/routes";
 import { realtimePlugin } from "./modules/realtime/ws";
+import { notificationRoutes } from "./modules/notifications/routes";
+import { adminRoutes } from "./modules/admin/routes";
+import { metricsPlugin } from "./plugins/metrics";
 
 export async function buildServer(envOverride?: Env): Promise<FastifyInstance> {
   const env = envOverride ?? loadEnv();
@@ -64,6 +67,7 @@ export async function buildServer(envOverride?: Env): Promise<FastifyInstance> {
   if (isDev) await app.register(swaggerUi, { routePrefix: "/docs" });
 
   await app.register(errorHandler);
+  await app.register(metricsPlugin);
   await app.register(authPlugin, { env });
 
   // Realtime WS (registers @fastify/websocket + /ws).
@@ -81,6 +85,8 @@ export async function buildServer(envOverride?: Env): Promise<FastifyInstance> {
   await app.register(searchRoutes, { prefix: "/api/search" });
   await app.register(priceRoutes, { env, prefix: "/api/prices" });
   await app.register(webhookRoutes, { env, prefix: "/webhooks" });
+  await app.register(notificationRoutes, { env, prefix: "/api/notifications" });
+  await app.register(adminRoutes, { env, prefix: "/api/admin" });
 
   return app;
 }

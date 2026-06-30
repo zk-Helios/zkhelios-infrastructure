@@ -15,6 +15,7 @@ import {
 } from "../../lib/siws";
 import { AuthError, ValidationError } from "../../utils/errors";
 import type { ErrorCode } from "@zkhelios/shared-types";
+import { signInsTotal } from "../../lib/metrics";
 
 const NONCE_TTL_SEC = 600; // 10 min
 const MESSAGE_MAX_AGE_MS = 5 * 60 * 1000;
@@ -89,10 +90,12 @@ export class AuthService {
     await this.redis().del(nonceKey(pubkey));
     await this.redis().del(failKey(pubkey));
 
+    const isAdmin = this.env.ADMIN_PUBKEYS.split(",").map((s) => s.trim()).includes(pubkey);
     const user = await prisma.user.update({
       where: { pubkey },
-      data: { nonce: null, lastSeenAt: new Date() },
+      data: { nonce: null, lastSeenAt: new Date(), ...(isAdmin ? { role: "ADMIN" as const } : {}) },
     });
+    signInsTotal.inc();
 
     const expiresAt = new Date(Date.now() + this.env.SESSION_TTL_DAYS * 86_400_000);
     const session = await prisma.session.create({

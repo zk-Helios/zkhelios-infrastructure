@@ -20,6 +20,16 @@ const EnvSchema = z.object({
 
   CORS_ORIGINS: z.string().default("http://localhost:3001,http://localhost:3000"),
   EXPECTED_DOMAIN: z.string().default("localhost:3001"),
+
+  // Notifications (all optional — channels are disabled until configured).
+  RESEND_API_KEY: z.string().optional(),
+  EMAIL_FROM: z.string().default("zkHelios <noreply@zkhelios.app>"),
+  VAPID_PUBLIC_KEY: z.string().optional(),
+  VAPID_PRIVATE_KEY: z.string().optional(),
+  VAPID_SUBJECT: z.string().default("mailto:security@zkhelios.app"),
+
+  // Admin bootstrap: comma-separated pubkeys granted ADMIN on sign-in.
+  ADMIN_PUBKEYS: z.string().default(""),
 });
 
 export type Env = z.infer<typeof EnvSchema>;

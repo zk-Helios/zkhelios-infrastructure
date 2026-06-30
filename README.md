@@ -18,6 +18,7 @@ Built in sequential sessions per `reference/zkhelios-solana-prompts.md`.
 **Solana Session 6 — Anchor Verifier Program (real Groth16 / alt_bn128) — ✅**
 **Solana Session 7 — Backend Foundation, Database & SIWS Auth — ✅**
 **Solana Session 8 — Indexer, Transactions & Real-Time Stats — ✅**
+**Solana Session 9 — Notifications, Background Jobs & Admin — ✅**
 
 ## Monorepo layout
 
@@ -97,7 +98,35 @@ Contracts + SIWS flow diagram: [`apps/dapp/API_CONTRACT.md`](apps/dapp/API_CONTR
 
 ---
 
-## HANDOFF NOTES → Solana Session 9 (Notifications, Jobs & Admin)
+## HANDOFF NOTES → Solana Session 10 (Security, Testing, Deploy & DevOps)
+
+### What Session 9 added (notifications + jobs + admin)
+
+- **Notifications** module: in-app list/read/delete, preferences (`mergePreferences` —
+  pure + tested), email verification (Redis code), web-push subscribe. Notification
+  **worker** subscribes to pub/sub (`proofs:new`/`revoked`, `circuits:new`) → in-app +
+  email + push per prefs, with a 100/day in-app cap + watched-address fan-out.
+- **Email** (`services/email.ts`): Resend via fetch, env-gated, branded HTML templates.
+  **Push** (`services/push.ts`): web-push + VAPID, prunes dead subscriptions.
+- **Admin** module (requireAdmin): announcements (audience targeting), user list +
+  lock/unlock (force-logout), queue stats, internal stats, detailed health. ADMIN granted
+  on sign-in via `ADMIN_PUBKEYS`.
+- **Scheduled jobs** (`workers/scheduled.ts`): BullMQ repeatable — session cleanup (hourly),
+  daily digest, circuit resync.
+- **Prometheus** `/metrics` (`prom-client`): HTTP duration, WS gauge, queue depth, business counters.
+- **DB**: added `PushSubscription` model (+ migration regenerated).
+
+**Verified:** all 10 packages type-check ✓; API unit tests **29/29** ✓ (added preference
+merge + email templates); API builds ✓; Prisma schema valid ✓.
+**Not run here (no Postgres/Redis/RPC/email/push):** workers + live endpoints — run via
+`docker compose` + provider keys (Resend, VAPID). Channels degrade gracefully when unset.
+
+### TODOs for Session 10
+
+- Security hardening (input audit, IDOR tests, rate-limit tuning, secrets mgmt, CSP/HSTS),
+  pen-test checklist, comprehensive tests (Testcontainers integration, k6 load, Playwright e2e),
+  CI/CD (api.yml, anchor.yml, deploy), K8s/Terraform IaC, observability stack, backups/DR,
+  OpenAPI export → `apps/docs` + frontend type generation, launch checklist.
 
 ### What Session 8 added (indexer + read APIs + realtime)
 
