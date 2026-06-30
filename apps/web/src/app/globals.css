@@ -1,0 +1,101 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: dark;
+  }
+
+  * {
+    @apply border-ink-400;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    @apply bg-background font-sans text-paper antialiased;
+    /* Faint dotted grid echoing the brand topology assets. */
+    background-image: radial-gradient(rgba(245, 165, 36, 0.06) 1px, transparent 1px);
+    background-size: 32px 32px;
+  }
+
+  ::selection {
+    @apply bg-amber-500/30 text-paper;
+  }
+
+  /* Amber focus ring on all focusable elements (a11y). */
+  :focus-visible {
+    @apply outline-none ring-2 ring-amber-500/70 ring-offset-2 ring-offset-background;
+  }
+
+  /* Slim branded scrollbar */
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #0a0a0a;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #2a2a2a;
+    border-radius: 9999px;
+    border: 2px solid #0a0a0a;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #3a3a3a;
+  }
+}
+
+@layer components {
+  /* Section gradient text used for emphasis spans. */
+  .text-gradient-amber {
+    @apply bg-gradient-to-br from-amber-200 via-amber-400 to-amber-600 bg-clip-text text-transparent;
+  }
+
+  /* Glass surface used by navbar + cards. */
+  .glass {
+    @apply border border-white/[0.08] bg-white/[0.03] backdrop-blur-xl;
+  }
+
+  /* Hairline gradient border highlight. */
+  .ring-amber-glow {
+    box-shadow:
+      0 0 0 1px rgba(245, 165, 36, 0.25),
+      0 0 40px -10px rgba(245, 165, 36, 0.5);
+  }
+}
+
+@layer utilities {
+  .mask-fade-b {
+    -webkit-mask-image: linear-gradient(to bottom, #000 60%, transparent 100%);
+    mask-image: linear-gradient(to bottom, #000 60%, transparent 100%);
+  }
+  .mask-fade-x {
+    -webkit-mask-image: linear-gradient(to right, transparent, #000 12%, #000 88%, transparent);
+    mask-image: linear-gradient(to right, transparent, #000 12%, #000 88%, transparent);
+  }
+}
+
+/* Hide native cursor on desktop where the custom cursor is active. */
+@media (hover: hover) and (pointer: fine) {
+  html.has-custom-cursor,
+  html.has-custom-cursor * {
+    cursor: none !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

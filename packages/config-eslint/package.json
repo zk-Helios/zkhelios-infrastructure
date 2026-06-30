@@ -1,0 +1,10 @@
+{
+  "name": "@zkhelios/eslint-config",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Shared ESLint config for zkHelios Next.js apps.",
+  "main": "index.js",
+  "dependencies": {
+    "eslint-config-next": "14.2.5"
+  }
+}

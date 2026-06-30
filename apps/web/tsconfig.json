@@ -1,0 +1,14 @@
+{
+  "extends": "@zkhelios/tsconfig/nextjs.json",
+  "compilerOptions": {
+    "paths": {
+      "@/*": ["./src/*"],
+      "@zkhelios/ui": ["../../packages/ui/src/index.ts"],
+      "@zkhelios/ui/cn": ["../../packages/ui/src/cn.ts"],
+      "@zkhelios/ui-tokens": ["../../packages/ui-tokens/src/index.ts"],
+      "@zkhelios/ui-tokens/tailwind": ["../../packages/ui-tokens/src/tailwind-preset.ts"]
+    }
+  },
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+  "exclude": ["node_modules"]
+}

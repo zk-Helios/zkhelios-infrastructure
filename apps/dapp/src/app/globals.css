@@ -1,0 +1,127 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: dark;
+  }
+
+  * {
+    @apply border-ink-400;
+  }
+
+  html {
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    @apply bg-background font-sans text-paper antialiased;
+    background-image: radial-gradient(rgba(245, 165, 36, 0.05) 1px, transparent 1px);
+    background-size: 32px 32px;
+  }
+
+  ::selection {
+    @apply bg-amber-500/30 text-paper;
+  }
+
+  :focus-visible {
+    @apply outline-none ring-2 ring-amber-500/70 ring-offset-2 ring-offset-background;
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #0a0a0a;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #2a2a2a;
+    border-radius: 9999px;
+    border: 2px solid #0a0a0a;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #3a3a3a;
+  }
+}
+
+@layer components {
+  .text-gradient-amber {
+    @apply bg-gradient-to-br from-amber-200 via-amber-400 to-amber-600 bg-clip-text text-transparent;
+  }
+  .glass {
+    @apply border border-white/[0.08] bg-white/[0.03] backdrop-blur-xl;
+  }
+  .ring-amber-glow {
+    box-shadow:
+      0 0 0 1px rgba(245, 165, 36, 0.25),
+      0 0 40px -10px rgba(245, 165, 36, 0.5);
+  }
+  /* Shimmer used by loading skeletons */
+  .skeleton {
+    @apply relative overflow-hidden rounded-md bg-ink-700;
+  }
+  .skeleton::after {
+    @apply absolute inset-0 -translate-x-full;
+    content: "";
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.04),
+      transparent
+    );
+    animation: shimmer 1.6s infinite;
+  }
+}
+
+/* ── Solana Wallet Adapter modal — brand override (amber/black) ───────────── */
+.wallet-adapter-modal-wrapper {
+  background: #0a0a0a !important;
+  border: 1px solid #2a2a2a !important;
+  border-radius: 1rem !important;
+  font-family: var(--font-inter), sans-serif !important;
+  box-shadow:
+    0 0 0 1px rgba(245, 165, 36, 0.12),
+    0 24px 64px -16px rgba(0, 0, 0, 0.8) !important;
+}
+.wallet-adapter-modal-title {
+  font-family: var(--font-space-grotesk), sans-serif !important;
+  color: #fafafa !important;
+}
+.wallet-adapter-modal-list .wallet-adapter-button {
+  background: #161616 !important;
+  border: 1px solid #2a2a2a !important;
+  border-radius: 0.625rem !important;
+  color: #fafafa !important;
+  font-family: var(--font-inter), sans-serif !important;
+  transition: all 0.2s ease-out !important;
+}
+.wallet-adapter-modal-list .wallet-adapter-button:hover {
+  background: #1c1c1c !important;
+  border-color: rgba(245, 165, 36, 0.5) !important;
+}
+.wallet-adapter-button-trigger {
+  background: #f5a524 !important;
+  color: #0a0a0a !important;
+}
+.wallet-adapter-modal-list-more {
+  color: #f5a524 !important;
+}
+.wallet-adapter-modal-button-close {
+  background: #161616 !important;
+}
+.wallet-adapter-modal-button-close svg {
+  fill: #a1a1aa !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
