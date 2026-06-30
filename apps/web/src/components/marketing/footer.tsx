@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Github, Twitter, MessageCircle, PenLine } from "lucide-react";
+import { Github, Twitter } from "lucide-react";
 import { Section } from "@/components/ui/section";
 import { Logo } from "@/components/ui/logo";
 import { SunRayDivider } from "@/components/ui/sun-ray-divider";
@@ -7,9 +7,7 @@ import { FOOTER_COLUMNS } from "@/lib/constants";
 
 const SOCIALS = [
   { label: "X", href: "https://x.com", Icon: Twitter },
-  { label: "Discord", href: "https://discord.com", Icon: MessageCircle },
   { label: "GitHub", href: "https://github.com/zk-Helios", Icon: Github },
-  { label: "Mirror", href: "https://mirror.xyz", Icon: PenLine },
 ];
 
 export function Footer() {
