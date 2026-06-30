@@ -13,6 +13,7 @@ import {
   SIWS_STATEMENT,
   SIWS_VERSION,
 } from "../../lib/siws";
+import { isOnCurvePubkey } from "../../lib/solana-validate";
 import { AuthError, ValidationError } from "../../utils/errors";
 import type { ErrorCode } from "@zkhelios/shared-types";
 import { signInsTotal } from "../../lib/metrics";
@@ -33,7 +34,9 @@ export class AuthService {
   }
 
   async issueNonce(pubkey: string) {
-    if (!isValidPubkey(pubkey)) throw new ValidationError("Invalid Solana public key");
+    if (!isValidPubkey(pubkey) || !isOnCurvePubkey(pubkey)) {
+      throw new ValidationError("Invalid Solana public key");
+    }
     const nonce = generateNonce();
     const issuedAt = new Date().toISOString();
 

@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-indexer
+  labels: { app: {{ .Release.Name }}, component: indexer }
+spec:
+  replicas: {{ .Values.indexer.replicas }}
+  strategy: { type: Recreate } # single-leader; no overlap
+  selector:
+    matchLabels: { app: {{ .Release.Name }}, component: indexer }
+  template:
+    metadata:
+      labels: { app: {{ .Release.Name }}, component: indexer }
+    spec:
+      containers:
+        - name: indexer
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          command: {{ toYaml .Values.indexer.command | nindent 12 }}
+          envFrom: [{ secretRef: { name: {{ .Values.existingSecret }} } }]
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-workers
+  labels: { app: {{ .Release.Name }}, component: workers }
+spec:
+  replicas: {{ .Values.workers.replicas }}
+  selector:
+    matchLabels: { app: {{ .Release.Name }}, component: workers }
+  template:
+    metadata:
+      labels: { app: {{ .Release.Name }}, component: workers }
+    spec:
+      containers:
+        - name: workers
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          command: {{ toYaml .Values.workers.command | nindent 12 }}
+          envFrom: [{ secretRef: { name: {{ .Values.existingSecret }} } }]

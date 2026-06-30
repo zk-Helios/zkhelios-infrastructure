@@ -1,0 +1,6 @@
+apiVersion: v2
+name: zkhelios-api
+description: zkHelios Fastify API (api + indexer + workers)
+type: application
+version: 0.1.0
+appVersion: "0.1.0"

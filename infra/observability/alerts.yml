@@ -1,0 +1,36 @@
+groups:
+  - name: zkhelios-api
+    rules:
+      - alert: HighErrorRate
+        expr: |
+          sum(rate(http_request_duration_seconds_count{status=~"5.."}[5m]))
+          / sum(rate(http_request_duration_seconds_count[5m])) > 0.01
+        for: 5m
+        labels: { severity: page }
+        annotations:
+          summary: "API 5xx error rate > 1% for 5m"
+          runbook: "docs/runbooks/incident-response.md"
+
+      - alert: HighLatencyP99
+        expr: histogram_quantile(0.99, sum(rate(http_request_duration_seconds_bucket[5m])) by (le)) > 1
+        for: 5m
+        labels: { severity: page }
+        annotations: { summary: "API p99 latency > 1s for 5m" }
+
+      - alert: IndexerLag
+        expr: solana_indexer_lag_signatures > 1000
+        for: 5m
+        labels: { severity: page }
+        annotations: { summary: "Indexer behind by > 1000 signatures", runbook: "docs/runbooks/indexer-recovery.md" }
+
+      - alert: QueueBacklog
+        expr: bullmq_queue_depth > 1000
+        for: 10m
+        labels: { severity: warn }
+        annotations: { summary: "BullMQ queue depth > 1000 sustained" }
+
+      - alert: RpcSlow
+        expr: solana_rpc_latency_ms > 2000
+        for: 5m
+        labels: { severity: warn }
+        annotations: { summary: "Solana RPC latency > 2s" }

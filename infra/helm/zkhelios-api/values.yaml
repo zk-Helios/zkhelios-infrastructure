@@ -1,0 +1,43 @@
+image:
+  repository: ghcr.io/zkhelios/zkhelios/api
+  tag: latest
+  pullPolicy: IfNotPresent
+
+# Separate deployments — they scale differently.
+api:
+  replicas: 3
+  resources:
+    requests: { cpu: 100m, memory: 256Mi }
+    limits: { cpu: "1", memory: 512Mi }
+  autoscaling:
+    enabled: true
+    minReplicas: 3
+    maxReplicas: 10
+    targetCPUUtilizationPercentage: 70
+
+indexer:
+  replicas: 1 # single-leader
+  command: ["pnpm", "--filter", "@zkhelios/api", "indexer"]
+
+workers:
+  replicas: 2
+  command: ["sh", "-c", "pnpm --filter @zkhelios/api worker:stats & pnpm --filter @zkhelios/api worker:notifications & pnpm --filter @zkhelios/api worker:scheduled & wait"]
+
+service:
+  port: 80
+  targetPort: 4000
+
+ingress:
+  enabled: true
+  className: nginx
+  host: api.zkhelios.app
+  tls: true
+
+env:
+  NODE_ENV: production
+# secrets (DATABASE_URL, REDIS_URL, AUTH_JWT_SECRET, RPC keys, VAPID, RESEND) come
+# from a Kubernetes Secret / External Secrets Operator — never values.yaml.
+existingSecret: zkhelios-api-secrets
+
+pdb:
+  minAvailable: 2

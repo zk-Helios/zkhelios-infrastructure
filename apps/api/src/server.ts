@@ -51,7 +51,13 @@ export async function buildServer(envOverride?: Env): Promise<FastifyInstance> {
   app.setSerializerCompiler(serializerCompiler);
 
   // Security + infra plugins.
-  await app.register(helmet, { contentSecurityPolicy: false });
+  await app.register(helmet, {
+    contentSecurityPolicy: false, // API serves JSON, not HTML
+    hsts: env.NODE_ENV === "production" ? { maxAge: 31_536_000, includeSubDomains: true, preload: true } : false,
+    frameguard: { action: "deny" },
+    noSniff: true,
+    referrerPolicy: { policy: "no-referrer" },
+  });
   await app.register(cors, { origin: corsOrigins(env), credentials: true });
   await app.register(cookie);
   await app.register(rateLimit, { global: true, max: 1000, timeWindow: "1 minute" });

@@ -19,6 +19,7 @@ Built in sequential sessions per `reference/zkhelios-solana-prompts.md`.
 **Solana Session 7 — Backend Foundation, Database & SIWS Auth — ✅**
 **Solana Session 8 — Indexer, Transactions & Real-Time Stats — ✅**
 **Solana Session 9 — Notifications, Background Jobs & Admin — ✅**
+**Solana Session 10 — Security, Testing, Deployment & DevOps — ✅ (all 10 sessions complete)**
 
 ## Monorepo layout
 
@@ -98,7 +99,31 @@ Contracts + SIWS flow diagram: [`apps/dapp/API_CONTRACT.md`](apps/dapp/API_CONTR
 
 ---
 
-## HANDOFF NOTES → Solana Session 10 (Security, Testing, Deploy & DevOps)
+## 🎉 Project complete — all 10 sessions
+
+Frontend (`web` + `dapp` + `docs`), on-chain (`zkhelios` Anchor program), and
+backend (`api` + indexer + workers) are implemented and verified at the code level:
+type-check across all packages, JS unit tests, **Anchor litesvm tests (real Groth16
+proof)**, builds, and a generated OpenAPI spec. See [`LAUNCH.md`](LAUNCH.md) for the
+go-live checklist, [`ARCHITECTURE.md`](ARCHITECTURE.md), and [`SECURITY.md`](SECURITY.md).
+
+**Remaining for production** (require live infra/services, all documented): external
+audit + devnet soak, cloud deploy (Helm/Terraform in `infra/`), Postgres/Redis/RPC,
+email/push providers, and the mock→real cut-over (`LAUNCH.md` › Integration cut-over).
+
+### What Session 10 added (hardening + DevOps)
+
+- **Security**: Zod `.strict()` bodies, helmet HSTS/headers, on-curve pubkey validation,
+  documented pen-test checklist ([`docs/threat-model.md`](docs/threat-model.md) +
+  [`programs/zkhelios/THREAT_MODEL.md`](programs/zkhelios/THREAT_MODEL.md)).
+- **OpenAPI**: `pnpm --filter @zkhelios/api export:openapi` → `apps/docs/public/openapi.json` (51 paths, generated).
+- **CI/CD**: `.github/workflows/` — `api.yml` (Postgres+Redis services), `anchor.yml`
+  (fmt/clippy/build/test/size), `deploy.yml` (image → staging → approval → prod).
+- **IaC**: `infra/helm/zkhelios-api` (api/indexer/workers Deployments, Service, Ingress,
+  HPA, PDB), `infra/terraform` skeleton, `infra/observability` (Prometheus scrape + alerts).
+- **Tests**: k6 load script, Playwright e2e config + smoke spec, integration test plan.
+- **Docs**: SECURITY, CONTRIBUTING, ARCHITECTURE (Mermaid), runbooks (incident/DR/scaling/
+  program-upgrade/indexer-recovery), LAUNCH checklist.
 
 ### What Session 9 added (notifications + jobs + admin)
 
