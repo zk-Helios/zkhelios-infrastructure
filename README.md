@@ -1,326 +1,69 @@
 # zkHelios
 
-> Zero-Knowledge proofs. Solana speed.
+> Zero-knowledge proofs on Solana — prove what matters, reveal only what you choose.
 
-A **Solana dApp with zero-knowledge proofs** — prove balance, ownership,
-membership, or age and verify it on-chain, revealing only what you choose.
-Built in sequential sessions per `reference/zkhelios-solana-prompts.md`.
+zkHelios lets you generate a Groth16 proof client-side (balance, ownership,
+membership, age, or a custom circuit) and verify it on-chain in a single Solana
+slot. Public inputs stay public; everything else never leaves your device.
 
-> **Note:** an earlier build (EVM/rollup) was pivoted to Solana on 2026-06-30.
-> The old `reference/zkhelios-build-prompts.md` (EVM) is superseded — use the
-> Solana pack.
+## Monorepo
 
-**Solana Session 1 — Foundation, Design System & Marketing Landing — ✅**
-**Solana Session 2 — dApp Shell, Wallet Adapter & SIWS Auth — ✅**
-**Solana Session 3 — Dashboard, Transaction History & Real-Time Data — ✅**
-**Solana Session 4 — Prove & Verify (client-side ZK + on-chain submit) — ✅**
-**Solana Session 5 — Explorer, Docs Site & Production Polish — ✅ (frontend track complete)**
-**Solana Session 6 — Anchor Verifier Program (real Groth16 / alt_bn128) — ✅**
-**Solana Session 7 — Backend Foundation, Database & SIWS Auth — ✅**
-**Solana Session 8 — Indexer, Transactions & Real-Time Stats — ✅**
-**Solana Session 9 — Notifications, Background Jobs & Admin — ✅**
-**Solana Session 10 — Security, Testing, Deployment & DevOps — ✅ (all 10 sessions complete)**
+| Path | Description |
+| --- | --- |
+| `apps/web` | Marketing site (Next.js 14) — port 3000 |
+| `apps/dapp` | dApp: Wallet Adapter + SIWS auth, dashboard, prove/verify, explorer — port 3001 |
+| `apps/docs` | Documentation site (Next.js 14) — port 3002 |
+| `apps/api` | Fastify backend: auth, indexer, transactions/proofs/stats, realtime — port 4000 |
+| `zkhelios/` | Anchor program (Rust) — on-chain Groth16 verifier via `alt_bn128` |
+| `packages/ui`, `ui-tokens` | Shared design system (primitives + tokens) |
+| `packages/sdk-ts` | `@zkhelios/sdk` — TypeScript client |
+| `packages/idl` | Generated Anchor IDL + types |
+| `packages/db`, `shared-types` | Prisma schema/client + shared API types |
+| `packages/config-*` | Shared TS / ESLint config |
+| `infra/` | Helm chart, Terraform, observability (Prometheus) |
 
-## Monorepo layout
+## Stack
 
-```
-zkhelios/                    # pnpm workspaces + Turborepo
-├─ apps/
-│  ├─ web/                   # Next.js 14 marketing site (port 3000)
-│  ├─ dapp/                  # Next.js 14 dApp — Wallet Adapter + SIWS (port 3001)
-│  ├─ docs/                  # Next.js 14 docs site (port 3002)
-│  └─ api/                   # Fastify backend — SIWS auth + users (port 4000, S7)
-├─ packages/
-│  ├─ ui/                    # Shared React primitives (Button, Card, Logo, …)
-│  ├─ ui-tokens/             # Design tokens + Tailwind preset
-│  ├─ sdk-ts/                # @zkhelios/sdk — TypeScript SDK (proofs/format/share/client)
-│  ├─ idl/                   # @zkhelios/idl — generated Anchor IDL + TS types (S6)
-│  ├─ db/                    # @zkhelios/db — Prisma schema + client (S7)
-│  ├─ shared-types/          # @zkhelios/shared-types — API ↔ frontend types (S7)
-│  ├─ config-tsconfig/       # Shared TS configs (@zkhelios/tsconfig)
-│  └─ config-eslint/         # Shared ESLint config (@zkhelios/eslint-config)
-├─ zkhelios/                 # Anchor workspace — on-chain Groth16 verifier (Rust, S6)
-│  └─ programs/zkhelios/     #   alt_bn128 verifier + tests (litesvm + arkworks)
-├─ .github/workflows/        # CI (lint · type-check · test · build)
-├─ public/Assets/            # Source brand assets
-└─ reference/                # Build prompt packs (do not put work here)
-```
+- **Frontend**: Next.js 14, Tailwind, Framer Motion, `@solana/wallet-adapter`, TanStack Query, Zustand
+- **On-chain**: Anchor (Rust), Groth16 / BN254 via Solana `alt_bn128` syscalls
+- **Backend**: Fastify, Prisma + PostgreSQL, Redis + BullMQ, SIWS auth (tweetnacl/ed25519)
+- **Tooling**: pnpm workspaces + Turborepo, Vitest, Prometheus
 
-Planned (later sessions): indexer + transactions/proofs/stats APIs + realtime WS (S8),
-notifications + jobs + admin (S9), security + deploy + observability (S10).
-
-## Quick start
+## Getting started
 
 ```bash
 # Node >= 18.17, pnpm 9
 pnpm install
-pnpm dev                 # turbo: runs all apps
-pnpm dev:web             # web  → http://localhost:3000
-pnpm dev:dapp            # dApp → http://localhost:3001
-pnpm build               # turbo build (both apps green)
-pnpm lint
+
+pnpm dev                      # all frontend apps (web/dapp/docs)
+pnpm build                    # build everything
 pnpm type-check
+pnpm lint
 ```
 
-## Stack
+### Backend (needs Postgres + Redis)
 
-- **web**: Next.js 14 · TS strict · Tailwind · Framer Motion · Lenis · Sonner
-- **dapp**: + `@solana/web3.js` · `@solana/wallet-adapter-*` · `@coral-xyz/anchor`
-  · `@solana/spl-token` · TanStack Query · Zustand · `tweetnacl`/`bs58` (SIWS) · iron-session
-- **brand** (chain-agnostic): solar amber `#F5A524` on black, 8-ray sun + hex `zk` mark,
-  Space Grotesk / Inter / JetBrains Mono, dark mode only
+```bash
+docker compose -f apps/api/docker-compose.yml up --build   # api on :4000, docs at /docs
+```
 
----
+### Anchor program
 
-## HANDOFF NOTES → Solana Session 3 (Dashboard, Tx History & Real-Time Data)
+```bash
+cd zkhelios
+anchor build
+cargo test            # litesvm integration tests
+```
 
-### What Sessions 1–2 deliver
+## Documentation
 
-- **Tooling**: Turborepo + shared `@zkhelios/tsconfig` / `@zkhelios/eslint-config`.
-- **web**: full Solana-positioned landing (hero "Zero-Knowledge proofs. Solana speed.",
-  stats, features, Commit·Prove·Verify, technology (Groth16/~200k CU), **Use Cases**,
-  ecosystem, roadmap Genesis→Eclipse, TS-SDK developer mockup, footer X/Discord/GitHub/Mirror).
-- **dapp wallet**: Wallet Adapter (Standard Wallets auto-detect Phantom/Solflare/Backpack),
-  cluster switcher localnet/devnet/mainnet-beta (persisted), custom wallet button
-  (address + SOL + dropdown), brand-themed wallet modal.
-- **dapp auth (SIWS)**: ed25519 message signing verified with `tweetnacl` + iron-session;
-  mock routes `/api/auth/{nonce,verify,me,logout}` — **verified end-to-end** (valid sig
-  accepted, tampered sig rejected). Hooks `useAuth`/`useRequireAuth`/`useSignOut`/
-  `useSolanaConnection`; stores `useAuthStore`/`useUIStore`/`useNotificationStore`/`useClusterStore`.
-- **dapp shell**: sidebar (Dashboard/Prove/Verify/Transactions/Explorer/Settings) + mobile drawer,
-  topbar (breadcrumb, cluster switcher, notifications, wallet), footer (live slot + TPS +
-  "Powered by Solana"). Settings functional (cluster, RPC override, sign-out).
-- **dapp Solana components**: `PublicKeyDisplay`, `TransactionSignatureDisplay`, `LamportsToSol`,
-  `NetworkBadge`, `SlotProgressBar`, `ComputeUnitEstimate`, `EmptyState`, Skeletons.
-  Chain hooks: `useSolBalance` (onAccountChange WS), `useTokenBalances`.
-- **`lib/anchor.ts`**: placeholder IDL + PDA helpers (verifier_config/user/circuit/proof).
+- [Architecture](ARCHITECTURE.md)
+- [Security policy](SECURITY.md) · [Threat model](docs/threat-model.md)
+- [Contributing](CONTRIBUTING.md)
+- [Runbooks](docs/runbooks/) · [Launch checklist](LAUNCH.md)
+- API setup & endpoints: [`apps/api/README.md`](apps/api/README.md)
+- Program reference: [`zkhelios/README.md`](zkhelios/README.md)
 
-Contracts + SIWS flow diagram: [`apps/dapp/API_CONTRACT.md`](apps/dapp/API_CONTRACT.md).
+## License
 
----
-
-## 🎉 Project complete — all 10 sessions
-
-Frontend (`web` + `dapp` + `docs`), on-chain (`zkhelios` Anchor program), and
-backend (`api` + indexer + workers) are implemented and verified at the code level:
-type-check across all packages, JS unit tests, **Anchor litesvm tests (real Groth16
-proof)**, builds, and a generated OpenAPI spec. See [`LAUNCH.md`](LAUNCH.md) for the
-go-live checklist, [`ARCHITECTURE.md`](ARCHITECTURE.md), and [`SECURITY.md`](SECURITY.md).
-
-**Remaining for production** (require live infra/services, all documented): external
-audit + devnet soak, cloud deploy (Helm/Terraform in `infra/`), Postgres/Redis/RPC,
-email/push providers, and the mock→real cut-over (`LAUNCH.md` › Integration cut-over).
-
-### What Session 10 added (hardening + DevOps)
-
-- **Security**: Zod `.strict()` bodies, helmet HSTS/headers, on-curve pubkey validation,
-  documented pen-test checklist ([`docs/threat-model.md`](docs/threat-model.md) +
-  [`programs/zkhelios/THREAT_MODEL.md`](programs/zkhelios/THREAT_MODEL.md)).
-- **OpenAPI**: `pnpm --filter @zkhelios/api export:openapi` → `apps/docs/public/openapi.json` (51 paths, generated).
-- **CI/CD**: `.github/workflows/` — `api.yml` (Postgres+Redis services), `anchor.yml`
-  (fmt/clippy/build/test/size), `deploy.yml` (image → staging → approval → prod).
-- **IaC**: `infra/helm/zkhelios-api` (api/indexer/workers Deployments, Service, Ingress,
-  HPA, PDB), `infra/terraform` skeleton, `infra/observability` (Prometheus scrape + alerts).
-- **Tests**: k6 load script, Playwright e2e config + smoke spec, integration test plan.
-- **Docs**: SECURITY, CONTRIBUTING, ARCHITECTURE (Mermaid), runbooks (incident/DR/scaling/
-  program-upgrade/indexer-recovery), LAUNCH checklist.
-
-### What Session 9 added (notifications + jobs + admin)
-
-- **Notifications** module: in-app list/read/delete, preferences (`mergePreferences` —
-  pure + tested), email verification (Redis code), web-push subscribe. Notification
-  **worker** subscribes to pub/sub (`proofs:new`/`revoked`, `circuits:new`) → in-app +
-  email + push per prefs, with a 100/day in-app cap + watched-address fan-out.
-- **Email** (`services/email.ts`): Resend via fetch, env-gated, branded HTML templates.
-  **Push** (`services/push.ts`): web-push + VAPID, prunes dead subscriptions.
-- **Admin** module (requireAdmin): announcements (audience targeting), user list +
-  lock/unlock (force-logout), queue stats, internal stats, detailed health. ADMIN granted
-  on sign-in via `ADMIN_PUBKEYS`.
-- **Scheduled jobs** (`workers/scheduled.ts`): BullMQ repeatable — session cleanup (hourly),
-  daily digest, circuit resync.
-- **Prometheus** `/metrics` (`prom-client`): HTTP duration, WS gauge, queue depth, business counters.
-- **DB**: added `PushSubscription` model (+ migration regenerated).
-
-**Verified:** all 10 packages type-check ✓; API unit tests **29/29** ✓ (added preference
-merge + email templates); API builds ✓; Prisma schema valid ✓.
-**Not run here (no Postgres/Redis/RPC/email/push):** workers + live endpoints — run via
-`docker compose` + provider keys (Resend, VAPID). Channels degrade gracefully when unset.
-
-### TODOs for Session 10
-
-- Security hardening (input audit, IDOR tests, rate-limit tuning, secrets mgmt, CSP/HSTS),
-  pen-test checklist, comprehensive tests (Testcontainers integration, k6 load, Playwright e2e),
-  CI/CD (api.yml, anchor.yml, deploy), K8s/Terraform IaC, observability stack, backups/DR,
-  OpenAPI export → `apps/docs` + frontend type generation, launch checklist.
-
-### What Session 8 added (indexer + read APIs + realtime)
-
-- **Indexer** (`workers/indexer.ts`): RPC poller (Redis cursor, idempotent, backoff)
-  that decodes Anchor events (`lib/anchor-events.ts` via BorshCoder/EventParser) and
-  dispatches `ProofVerified`/`ProofRevoked`/`CircuitRegistered` → DB + pub/sub. Helius
-  webhook (`POST /webhooks/helius`) as the production path.
-- **Read APIs**: transactions (filters + cursor + CSV export), proofs, circuits
-  (+admin enable/disable), stats (overview/network/timeseries/leaderboard, Redis-cached),
-  blocks, universal search, Jupiter prices.
-- **Realtime**: `@fastify/websocket` `/ws` with the subscription model the dApp expects
-  (`stats`/`proofs`/`address:{pubkey}:txs`/`user:proofs`/`user:notifications`), bridging
-  Redis pub/sub, with sub limits + heartbeat/idle-timeout.
-- **Stats aggregator** (`workers/stats-aggregator.ts`): BullMQ repeatable (1/min) →
-  `NetworkStat` + `stats:update` publish.
-- **Caching**: versioned Redis keys + TTLs (`lib/cache.ts`); pub/sub helper (`lib/pubsub.ts`).
-
-**Verified:** all 10 packages type-check ✓; API unit tests **21/21** ✓ (SIWS verify,
-search classify, event normalize, cursor/CSV); API builds ✓.
-**Not run here (no Postgres/Redis/RPC):** the indexer, live endpoints, and WS — run via
-`docker compose` + a devnet RPC. The Anchor event decoder may need `@coral-xyz/anchor`
-aligned to the 1.x IDL (same reconciliation flagged in S6/S7); it's isolated + fails safe.
-
-### TODOs for Session 9
-
-- Notifications (in-app + email + web-push), notification worker subscribing to the
-  pub/sub events, preferences, email verification. Background jobs (session cleanup,
-  digest, circuit resync). Admin module (announcements, user lock, queue board, metrics).
-- Prometheus `/metrics`.
-
-### What Session 7 added (backend foundation)
-
-- **`apps/api`** (Fastify 4): Zod-validated env (fail-fast), Pino logging w/ redaction,
-  global error handler + custom error classes, health checks (`/health`, `/live`,
-  `/ready` checks DB+Redis), OpenAPI/Swagger at `/docs`, cors/helmet/rate-limit/cookie,
-  Redis clients + BullMQ queue defs (indexer-backfill, notification-sender, stats-aggregator).
-- **SIWS auth** (`modules/auth`): nonce → verify (tweetnacl ed25519) → JWT httpOnly
-  cookie (jti = session id); logout/me/refresh + session list/revoke/revoke-all; rate
-  limits (nonce 10/min, verify 5/min) + address lockout (10 fails/1h); `authenticate` /
-  `requireAdmin` decorators.
-- **Users** (`modules/users`): me / patch (displayName/email/prefs) / public `:pubkey`
-  profile / watched-address CRUD.
-- **`packages/db`** (Prisma 5): full schema (User, Session, Transaction, InstructionRecord,
-  ProofRecord, Circuit, BlockSnapshot, WatchedAddress, Notification, NetworkStat + enums) —
-  **validated**, client **generated**, initial migration SQL written, seed script.
-- **`packages/shared-types`**: API↔frontend types + error codes.
-- Docker (multi-stage `Dockerfile` + `docker-compose.yml`: api+postgres+redis), `.env.example`.
-
-**Verified:** all 10 packages type-check ✓; API unit tests (SIWS verify) **7/7** ✓; API
-builds to `dist/` ✓; Prisma schema valid + client generated ✓; lint ✓.
-**Not run here (no Postgres/Redis/Docker in this env):** live server + DB integration
-tests — run via `docker compose -f apps/api/docker-compose.yml up`.
-Setup + endpoints: [`apps/api/README.md`](apps/api/README.md).
-
-### TODOs for Session 8
-
-- Indexer worker: ingest `ProofVerified` / `CircuitRegistered` events (Helius webhooks +
-  RPC polling); transactions/proofs/circuits/stats read APIs; cursor pagination; `/search`.
-- Realtime: `@fastify/websocket` `/ws` with the channel model the dApp already expects
-  (`stats`, `proofs`, `user:notifications`, `address:{pubkey}:txs`).
-- Swap the dApp's mock API client (`apps/dapp/src/lib/api/mock.ts`) for the real REST/WS;
-  generate `packages/shared-types` from OpenAPI; replace SIWS mock routes with this backend.
-
-### What Session 6 added (on-chain track begins)
-
-- **Anchor program** (`zkhelios/`, Anchor 1.1.2): `verify_proof` performs a **real
-  Groth16/BN254 verification** via Solana `alt_bn128` syscalls (`~100k CU`), plus
-  initialize, register_circuit, set_circuit_enabled, create_user_account, revoke/close,
-  update_config, two-step admin transfer. PDAs + error codes 6000–6012 match the dApp.
-- **Nonce**: client-random `u64` + `init` constraint on ProofAccount (auto duplicate
-  reject). Frontend reconciled (`submit.ts` → `crypto.getRandomValues`).
-- **Tests**: `cargo test` (litesvm), **11/11 green** — the happy path generates a
-  **real arkworks Groth16 proof** and verifies it on-chain; failure paths (tampered
-  proof, wrong input count, dup nonce, paused/disabled, non-admin), fee transfer,
-  revoke/close, admin transfer all covered. CU asserted < 300k.
-- **IDL** exported → `packages/idl` (`@zkhelios/idl`, 10 ix / 4 accounts / 13 errors).
-  Bootstrap (`scripts/bootstrap-localnet.ts`) + IDL sync (`scripts/sync-idl.sh`).
-- Toolchain installed: Solana CLI 4.0.2, Anchor 1.1.2, `cargo-build-sbf`.
-
-Program reference + CU benchmark + security checklist: [`zkhelios/README.md`](zkhelios/README.md).
-
-### TODOs for Session 7 (backend)
-
-- `apps/api` (Fastify) + `packages/db` (Prisma/Postgres) + `packages/shared-types`.
-- SIWS auth server-side (mirror the dApp's `/api/auth/*` mock contract; tweetnacl ed25519).
-- Indexer plan for `ProofVerified` / `CircuitRegistered` events (Helius webhooks / RPC).
-- Integration step (later): wire the dApp's `lib/anchor.ts` to `@zkhelios/idl` and bump
-  the dApp's `@coral-xyz/anchor` (^0.30 → 1.x) so the 1.x IDL deserializes; deploy to devnet
-  and set `NEXT_PUBLIC_PROGRAM_ID`. Swap the mock prover for real `snarkjs` + circuit artifacts.
-
-### What Session 5 added (frontend track complete)
-
-- **Explorer** (`/explorer`, public): universal search (signature/pubkey/proof-id/slot) +
-  live latest proofs/transactions + top-provers leaderboard + live slot/epoch. Detail pages
-  `proof/[id]`, `tx/[signature]`, `address/[pubkey]` (holdings + 90-day heatmap + watch),
-  `program/[programId]`. Breadcrumbs, clickable/copyable, `useWatchlist` (localStorage).
-- **Docs site** (`apps/docs`, port 3002): sidebar nav + search + branded callouts + copy-able
-  code blocks; real content — Introduction, Quickstart, Concepts (architecture/proof-system/
-  account-model), Guides (balance/custom), Reference (SDK/program/API/circuits), FAQ.
-- **SDK** (`packages/sdk-ts`, `@zkhelios/sdk`): `ZkHelios` facade + production-ready
-  `groth16ToSolana`/`encodeProof` + types + example + README.
-- **Polish**: dynamic-imported recharts (dashboard **544→438 kB**) + prove wizard (**496→281 kB**);
-  dapp manifest/robots/sitemap + OG images (web + dapp via `next/og`); docs robots/sitemap;
-  **Vitest** (11 unit tests, green) for `lib/zk/format` + `share`; **CI workflow**
-  (lint·type-check·test·build); `.env.example` for dapp + docs.
-- **Not wired (need accounts/infra)**: Sentry, Plausible/PostHog, Playwright e2e, next-intl i18n,
-  Lighthouse-CI, axe-core. Hooks/env are stubbed; documented in `.env.example`.
-
-### TODOs for Session 6 (the Anchor program)
-
-- `anchor init` → `programs/zkhelios`: VerifierConfig / CircuitRegistry / UserAccount / ProofAccount
-  PDAs; `verify_proof` using `alt_bn128` Groth16 syscalls; 5 standard circuits; error codes 6000–6012.
-- Export IDL → `packages/idl`; replace `apps/dapp/src/lib/anchor.ts` mock IDL + the
-  `lib/zk/submit.ts` simulation with real `program.methods.verifyProof(...).rpc()`.
-- Swap the mock worker for real `snarkjs.groth16.fullProve` (drop artifacts into `public/circuits/`)
-  and `verifyOffchain` for `snarkjs.groth16.verify`.
-- The dApp already defines the full expected interface — see [`apps/dapp/API_CONTRACT.md`](apps/dapp/API_CONTRACT.md).
-
-### What Session 4 added
-
-- **Prove** (`/prove`): 5 proof types → wizard (Configure RHF+Zod with public/private
-  preview → Review with est. size/CU → **Generate in a Web Worker** with animated
-  hexagon-mesh progress + cancel → Result with Groth16 JSON copy/download + Solana
-  byte layout → **Submit on-chain** with lifecycle Building→Sending→Confirmed→Finalized,
-  first-time confetti, proof-account PDA + explorer links). Proof **history sidebar**
-  (Dexie/IndexedDB) with reuse + delete + filter.
-- **Verify** (`/verify`, public): look up by account/signature/id **or** paste proof JSON
-  for off-chain re-verification; shows ✓/✗, decoded public inputs, author, signature,
-  date; Verify-again + Share (`/verify?proof=<base64url>`).
-- **ZK core**: `lib/zk/{types,circuits,format,prover,submit,verify,share}`,
-  `workers/proof-worker.ts` (staged mock prover — swap point for real snarkjs),
-  `lib/db.ts` (Dexie). Groth16 → Solana `[u8;32]` byte conversion is real.
-
-Contracts + Anchor `verify_proof` args + ProofAccount: [`apps/dapp/API_CONTRACT.md`](apps/dapp/API_CONTRACT.md).
-
-### TODOs for Session 5
-
-- Build `/explorer` (proof/tx/address/program detail pages, universal search) and the
-  `apps/docs` site (Fumadocs/Nextra, real content). SEO/OG, analytics, Sentry, PWA, i18n, tests, CI/CD.
-- **Perf**: dynamic-import the recharts (dashboard 544 kB) and the prove bundle.
-- Drop real circuit artifacts into `public/circuits/` and swap the mock worker for
-  `snarkjs.groth16.fullProve`; swap `verifyOffchain` for `snarkjs.groth16.verify`.
-- Replace `lib/anchor.ts` mock IDL + `lib/zk/submit.ts` simulation with the deployed
-  program (Session 6).
-
-### What Session 3 added
-
-- **Dashboard** (`/`): real SOL + SPL balances (chain) with Jupiter USD; active-proofs,
-  recent-activity, and live epoch/slot cards; 4 network stat cards with sparklines +
-  count-up + pulse-on-update; Recharts line (24h/7d/30d toggle) / bar (CU per type) /
-  donut (proof distribution); quick actions, announcements, network-health; realtime
-  connection indicator (`useRealtimeStats` mock WS).
-- **Transactions** (`/transactions`): filterable (search/type/status/date) virtualized
-  table (`@tanstack/react-virtual`) with cursor pagination + background load, detail
-  drawer (decoded logs, token balance changes, CU, raw-JSON toggle, Explorer/Solscan/xRay),
-  CSV export, empty + error states.
-- **Data layer**: `lib/mock/solana.ts` (faker, deterministic base58 sigs/pubkeys, lamport
-  precision, 140 txs + 48 proofs), `lib/api/mock.ts` (latency + ~6% transient errors,
-  cursor pagination), `lib/api/jupiter.ts` (resilient price + fallback). TanStack Query
-  hooks; `useEpochInfo` (real onSlotChange), `useSolBalance`/`useTokenBalances` (real chain).
-
-Contracts + realtime/WS spec: [`apps/dapp/API_CONTRACT.md`](apps/dapp/API_CONTRACT.md).
-
-### TODOs for Session 4 (Prove + Verify)
-
-- Build `/prove` (5 proof types → wizard → snarkjs in a Web Worker → on-chain submit via
-  `@coral-xyz/anchor` `verify_proof`) and `/verify` (by account/signature or pasted JSON).
-- Add `snarkjs` (dynamic import — heavy), Dexie (IndexedDB proof history), circuit assets
-  under `public/circuits/`, Groth16 → Solana format helper (`lib/zk/format.ts`).
-- Wire to the real Anchor program once Session 6 lands (replace `lib/anchor.ts` mock IDL).
-- Set `SESSION_SECRET`, `NEXT_PUBLIC_RPC_URL_*`, `NEXT_PUBLIC_PROGRAM_ID` for non-dev.
-- Perf (Session 5): dynamic-import the Recharts/snarkjs bundles to trim dashboard JS.
+MIT

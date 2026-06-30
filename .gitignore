@@ -32,3 +32,6 @@ test-ledger
 .anchor
 **/*.rs.bk
 Cargo.lock.orig
+
+# internal prompt packs — never publish
+reference/
