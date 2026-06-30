@@ -6,6 +6,7 @@ import { HowItWorks } from "@/components/marketing/how-it-works";
 import { Technology } from "@/components/marketing/technology";
 import { UseCases } from "@/components/marketing/use-cases";
 import { Ecosystem } from "@/components/marketing/ecosystem";
+import { Tokenomics } from "@/components/marketing/tokenomics";
 import { Roadmap } from "@/components/marketing/roadmap";
 import { Developers } from "@/components/marketing/developers";
 import { FinalCta } from "@/components/marketing/final-cta";
@@ -23,6 +24,7 @@ export default function HomePage() {
         <Technology />
         <UseCases />
         <Ecosystem />
+        <Tokenomics />
         <Roadmap />
         <Developers />
         <FinalCta />

@@ -15,6 +15,7 @@ export const NAV_LINKS = [
   { label: "Product", href: "#features" },
   { label: "Technology", href: "#technology" },
   { label: "Use Cases", href: "#use-cases" },
+  { label: "Token", href: "#tokenomics" },
   { label: "Ecosystem", href: "#ecosystem" },
   { label: "Developers", href: "#developers" },
   { label: "Docs", href: "/docs" },
@@ -154,6 +155,17 @@ export const ROADMAP = [
     points: ["Composable CPI verifier", "Custom circuit registry", "Rust SDK"],
   },
 ] as const;
+
+export const TOKENOMICS = {
+  symbol: "ZKH",
+  totalSupply: "1B",
+  asset: "/assets/tokenomics.png",
+  allocations: [
+    { label: "Prover Rewards", pct: 70, color: "#F5A524", note: "Emissions to the decentralized prover network." },
+    { label: "Foundation", pct: 20, color: "#FAFAFA", note: "Core development, audits, and grants." },
+    { label: "Liquidity", pct: 10, color: "#3A3A3A", note: "DEX liquidity and market depth." },
+  ],
+} as const;
 
 export const FOOTER_COLUMNS = [
   {
