@@ -8,7 +8,7 @@ import { FOOTER_COLUMNS } from "@/lib/constants";
 const SOCIALS = [
   { label: "X", href: "https://x.com", Icon: Twitter },
   { label: "Discord", href: "https://discord.com", Icon: MessageCircle },
-  { label: "GitHub", href: "https://github.com", Icon: Github },
+  { label: "GitHub", href: "https://github.com/zk-Helios", Icon: Github },
   { label: "Mirror", href: "https://mirror.xyz", Icon: PenLine },
 ];
 
