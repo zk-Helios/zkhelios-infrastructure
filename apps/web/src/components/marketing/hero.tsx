@@ -1,15 +1,47 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { ArrowUpRight, BookOpen } from "lucide-react";
+import { ArrowUpRight, BookOpen, Check, Copy } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { LogoMark } from "@/components/ui/logo";
 import { Magnetic } from "@/components/shared/magnetic";
 import { HexGrid } from "@/components/ui/hex-grid";
-import { BACKERS } from "@/lib/constants";
+import { BACKERS, CONTRACT_ADDRESS } from "@/lib/constants";
 
 const easeOut = [0.16, 1, 0.3, 1] as const;
+
+function ContractAddress() {
+  const [copied, setCopied] = useState(false);
+
+  const copy = async () => {
+    try {
+      await navigator.clipboard.writeText(CONTRACT_ADDRESS);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1800);
+    } catch {
+      /* clipboard unavailable — no-op */
+    }
+  };
+
+  return (
+    <button
+      type="button"
+      onClick={copy}
+      aria-label={copied ? "Contract address copied" : "Copy contract address"}
+      className="group inline-flex max-w-full items-center gap-2 rounded-full border border-amber-500/30 bg-amber-500/[0.06] px-3 py-1.5 font-mono text-caption text-paper-muted transition-colors duration-200 hover:border-amber-500/50 hover:text-amber-200"
+    >
+      <span className="uppercase tracking-[0.18em] text-amber-300">CA</span>
+      <span className="truncate tabular-nums">{CONTRACT_ADDRESS}</span>
+      {copied ? (
+        <Check className="size-3.5 shrink-0 text-status-online" />
+      ) : (
+        <Copy className="size-3.5 shrink-0 opacity-70 transition-opacity group-hover:opacity-100" />
+      )}
+    </button>
+  );
+}
 
 export function Hero() {
   return (
@@ -89,6 +121,16 @@ export function Hero() {
                 Read the Docs
               </Button>
             </Link>
+          </motion.div>
+
+          {/* Contract address (CA) */}
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, ease: easeOut, delay: 0.55 }}
+            className="mt-6 w-full max-w-md"
+          >
+            <ContractAddress />
           </motion.div>
 
           {/* Backed-by strip */}
