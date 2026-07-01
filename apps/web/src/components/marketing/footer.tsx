@@ -7,7 +7,7 @@ import { FOOTER_COLUMNS } from "@/lib/constants";
 
 const SOCIALS = [
   { label: "X", href: "https://x.com/zk_Helios", Icon: Twitter },
-  { label: "GitHub", href: "https://github.com/zk-Helios/zk-Helios", Icon: Github },
+  { label: "GitHub", href: "https://github.com/zk-Helios/zkhelios-infrastructure", Icon: Github },
 ];
 
 export function Footer() {
