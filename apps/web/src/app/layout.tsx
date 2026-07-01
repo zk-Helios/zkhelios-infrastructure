@@ -26,6 +26,8 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: `${SITE.name} — ${SITE.tagline}`,
     description: SITE.description,
+    site: "@zk_Helios",
+    creator: "@zk_Helios",
   },
   icons: { icon: "/favicon.svg" },
 };
