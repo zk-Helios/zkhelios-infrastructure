@@ -2,6 +2,10 @@ import type { AuthUser } from "@/types";
 
 /** Thin client for the (currently mocked) SIWS auth endpoints. */
 
+// These routes are served by this app, so they live under its basePath.
+// next/link auto-prefixes basePath, but raw fetch() does not — prefix manually.
+const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH || "";
+
 export interface NonceResponse {
   nonce: string;
   statement: string;
@@ -9,7 +13,7 @@ export interface NonceResponse {
 }
 
 export async function fetchNonce(publicKey: string): Promise<NonceResponse> {
-  const res = await fetch("/api/auth/nonce", {
+  const res = await fetch(`${BASE_PATH}/api/auth/nonce`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     credentials: "include",
@@ -20,7 +24,7 @@ export async function fetchNonce(publicKey: string): Promise<NonceResponse> {
 }
 
 export async function fetchMe(): Promise<AuthUser | null> {
-  const res = await fetch("/api/auth/me", { credentials: "include" });
+  const res = await fetch(`${BASE_PATH}/api/auth/me`, { credentials: "include" });
   if (!res.ok) return null;
   const data = (await res.json()) as { ok: boolean; user: AuthUser | null };
   return data.user ?? null;
@@ -31,7 +35,7 @@ export async function verifySiws(
   signature: string,
   publicKey: string,
 ): Promise<boolean> {
-  const res = await fetch("/api/auth/verify", {
+  const res = await fetch(`${BASE_PATH}/api/auth/verify`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     credentials: "include",
@@ -42,5 +46,5 @@ export async function verifySiws(
 }
 
 export async function logout(): Promise<void> {
-  await fetch("/api/auth/logout", { method: "POST", credentials: "include" });
+  await fetch(`${BASE_PATH}/api/auth/logout`, { method: "POST", credentials: "include" });
 }
