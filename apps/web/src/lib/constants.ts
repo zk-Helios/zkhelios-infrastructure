@@ -11,6 +11,9 @@ export const SITE = {
   url: "https://zkhelios.app",
 } as const;
 
+/** ZKH token mint / contract address (Solana). Shown in the hero as the CA. */
+export const CONTRACT_ADDRESS = "BpaUZUXsPqEoJ4F8foe4Buy7TnoVZVobnjb3tawTpump";
+
 export const NAV_LINKS = [
   { label: "Product", href: "#features" },
   { label: "Technology", href: "#technology" },
