@@ -6,8 +6,8 @@ import { SunRayDivider } from "@/components/ui/sun-ray-divider";
 import { FOOTER_COLUMNS } from "@/lib/constants";
 
 const SOCIALS = [
-  { label: "X", href: "https://x.com", Icon: Twitter },
-  { label: "GitHub", href: "https://github.com/zk-Helios", Icon: Github },
+  { label: "X", href: "https://x.com/zk_Helios", Icon: Twitter },
+  { label: "GitHub", href: "https://github.com/zk-Helios/zk-Helios", Icon: Github },
 ];
 
 export function Footer() {
