@@ -29,7 +29,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               </span>
             </Link>
             <div className="flex items-center gap-3">
-              <a href="https://github.com/zk-Helios/zk-Helios" target="_blank" rel="noopener noreferrer" className="grid size-9 place-items-center rounded-md border border-ink-400 text-paper-muted hover:text-amber-300">
+              <a href="https://github.com/zk-Helios/zkhelios-infrastructure" target="_blank" rel="noopener noreferrer" className="grid size-9 place-items-center rounded-md border border-ink-400 text-paper-muted hover:text-amber-300">
                 <Github className="size-4" />
               </a>
               <Link href="/app">

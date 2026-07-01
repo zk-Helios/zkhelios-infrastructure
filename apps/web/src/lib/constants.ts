@@ -183,7 +183,7 @@ export const FOOTER_COLUMNS = [
       { label: "Documentation", href: "/docs" },
       { label: "TypeScript SDK", href: "/docs/sdk" },
       { label: "Program Reference", href: "/docs/program" },
-      { label: "GitHub", href: "https://github.com/zk-Helios/zk-Helios" },
+      { label: "GitHub", href: "https://github.com/zk-Helios/zkhelios-infrastructure" },
     ],
   },
   {
